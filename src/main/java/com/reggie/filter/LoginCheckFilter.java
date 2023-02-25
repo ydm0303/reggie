@@ -44,7 +44,7 @@ public class LoginCheckFilter implements Filter {
 
         //不需要处理，放行
         if(check){
-            log.info("本次请求为{}不需要处理",requestURI);
+            log.info("本次请求为:{}不需要处理",requestURI);
             filterChain.doFilter(request,response);
             return;
         }
