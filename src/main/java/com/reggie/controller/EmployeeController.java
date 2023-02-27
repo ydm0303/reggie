@@ -127,5 +127,27 @@ public class EmployeeController {
         return R.success(pageInfo);
     }
 
+    @PutMapping
+    public R<String> update(HttpServletRequest request,@RequestBody Employee employee){
+        log.info(employee.toString());
+        Long empId = (Long) request.getSession().getAttribute("employee");
+        employee.setUpdateTime(LocalDateTime.now());
+        employee.setUpdateUser(empId);
+        employeeService.updateById(employee);
+        return R.success("修改用户信息成功！");
+    }
+
+    /**
+     * 通过地址栏传id --> GetMapping("/{id}") , @PathVariable
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id}")
+    public R<Employee> getById(@PathVariable Long id){
+        log.info("根据id查询员工---->");
+        Employee employee = employeeService.getById(id);
+        return R.success(employee);
+    }
+
 
 }
