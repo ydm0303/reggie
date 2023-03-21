@@ -92,14 +92,14 @@ public class EmployeeController {
         //设置员工初始密码，并且md5加密
         employee.setPassword(DigestUtils.md5DigestAsHex("123456".getBytes()));
 
-        employee.setCreateTime(LocalDateTime.now());
-        employee.setUpdateTime(LocalDateTime.now());
-
-        //从session中获取当前用户id
-        Long empId = (Long) request.getSession().getAttribute("employee");
-
-        employee.setCreateUser(empId);
-        employee.setUpdateUser(empId);
+//        employee.setCreateTime(LocalDateTime.now());
+//        employee.setUpdateTime(LocalDateTime.now());
+//
+//        //从session中获取当前用户id
+//        Long empId = (Long) request.getSession().getAttribute("employee");
+//
+//        employee.setCreateUser(empId);
+//        employee.setUpdateUser(empId);
 
         employeeService.save(employee);
 
@@ -130,13 +130,14 @@ public class EmployeeController {
     @PutMapping
     public R<String> update(HttpServletRequest request,@RequestBody Employee employee){
         log.info(employee.toString());
-        Long empId = (Long) request.getSession().getAttribute("employee");
-        employee.setUpdateTime(LocalDateTime.now());
-        employee.setUpdateUser(empId);
+//        Long empId = (Long) request.getSession().getAttribute("employee");
+//        employee.setUpdateTime(LocalDateTime.now());
+//        employee.setUpdateUser(empId);
+//        String name = employee.getName();
         employeeService.updateById(employee);
-        if(empId == 1){
-            return R.error("管理员不能禁用！");
-        }
+//        if(name.equals("admin")){
+//            return R.error("管理员不能禁用！");
+//        }
         return R.success("修改用户信息成功！");
     }
 
@@ -149,7 +150,11 @@ public class EmployeeController {
     public R<Employee> getById(@PathVariable Long id){
         log.info("根据id查询员工---->");
         Employee employee = employeeService.getById(id);
-        return R.success(employee);
+        if(employee != null){
+            return R.success(employee);
+        }
+        return R.error("没有查询到对应员工信息。");
+
     }
 
 
