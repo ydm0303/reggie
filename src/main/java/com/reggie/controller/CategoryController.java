@@ -37,4 +37,10 @@ public class CategoryController {
 
         return R.success(pageInfo);
     }
+
+    public R<String> delete(Long ids){
+        return null;
+    }
+
+
 }
