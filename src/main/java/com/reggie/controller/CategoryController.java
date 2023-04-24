@@ -5,9 +5,13 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.reggie.common.R;
 import com.reggie.entity.Category;
 import com.reggie.service.CategoryService;
+import com.sun.xml.internal.messaging.saaj.packaging.mime.util.QEncoderStream;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import javax.swing.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/category")
@@ -61,6 +65,26 @@ public class CategoryController {
         categoryService.updateById(category);
 
         return R.success("更新分类成功");
+    }
+
+    /**
+     * 获取分类-根据类型来获取
+     * @param category
+     * @return
+     */
+    @GetMapping("/list")
+    public R<List<Category>> listR(Category category){
+        //条件构造器
+        LambdaQueryWrapper<Category> queryWrapper = new LambdaQueryWrapper<>();
+        //添加查询条件
+        queryWrapper.eq(category.getType() != null,Category::getType,category.getType());
+        //排序字段，有限使用Sort字段排序。如果相同，则使用Updatetime字段降序排序
+        queryWrapper.orderByAsc(Category::getSort).orderByDesc(Category::getUpdateTime);
+
+        //个人理解:LambdaQueryWrapper,是用来构建sql查询的条件，也就是写sql；执行sql查询还是通过调用service来实现
+
+        List<Category> list = categoryService.list(queryWrapper);
+        return R.success(list);
     }
 
 }
