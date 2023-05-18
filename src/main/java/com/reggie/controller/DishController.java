@@ -34,6 +34,11 @@ public class DishController {
         return R.success(pageInfo);
     }
 
+    /**
+     * 个人理解：当从前端传入的数据对象是JSON时，需要加RequestBody注解
+     * @param dishDto
+     * @return
+     */
     @PostMapping
     public R<String> save(@RequestBody DishDto dishDto){
         log.info(dishDto.toString());
