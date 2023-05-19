@@ -1,5 +1,6 @@
 package com.reggie.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.reggie.dto.DishDto;
@@ -8,6 +9,7 @@ import com.reggie.entity.DishFlavor;
 import com.reggie.mapper.DishMapper;
 import com.reggie.service.DishFlavorService;
 import com.reggie.service.DishService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,5 +46,33 @@ public class DishServiceImpl extends ServiceImpl<DishMapper,Dish> implements Dis
 //        dishFlavorService.saveBatch(dishDto.getFlavors());
         dishFlavorService.saveBatch(dishFlavors);
 
+    }
+
+    @Override
+    public DishDto getByIdWithFlavor(Long id) {
+
+        //1，查询菜品基本信息表dish
+        Dish dish = this.getById(id);
+
+        DishDto dishDto = new DishDto();
+        BeanUtils.copyProperties(dish,dishDto);  //将菜品基本属性复制给dto
+
+        //2，查询口味表dish_flavor
+        LambdaQueryWrapper<DishFlavor> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(DishFlavor::getDishId,dish.getId());
+        List<DishFlavor> dishFlavors = dishFlavorService.list(queryWrapper);
+        dishDto.setFlavors(dishFlavors);
+
+        return dishDto;
+    }
+
+    @Override
+    public void updateWithDishFlavor(DishDto dishDto) {
+
+        //1.更新dish基本信息
+
+        //2.清理当前菜品对应的口味数据 -- dish_flavor -- 删除操作
+
+        //3.重新添加前端提交过来的口味数据-- dish_flavor-新增操作
     }
 }
