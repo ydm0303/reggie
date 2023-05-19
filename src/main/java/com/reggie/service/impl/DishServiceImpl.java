@@ -35,13 +35,14 @@ public class DishServiceImpl extends ServiceImpl<DishMapper,Dish> implements Dis
         List<DishFlavor> dishDtoFlavors = dishDto.getFlavors();
 
         //菜品口味
-        dishDtoFlavors.stream().map((item) ->{
+        List<DishFlavor> dishFlavors = dishDtoFlavors.stream().map((item) -> {
             item.setDishId(dishId);
             return item;
         }).collect(Collectors.toList());
 
         //保存菜品口味到菜品口味表，dishFlavor
 //        dishFlavorService.saveBatch(dishDto.getFlavors());
+        dishFlavorService.saveBatch(dishFlavors);
 
     }
 }
