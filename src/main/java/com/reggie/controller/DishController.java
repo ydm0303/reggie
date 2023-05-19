@@ -6,9 +6,11 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.reggie.common.R;
 import com.reggie.dto.DishDto;
 import com.reggie.entity.Dish;
+import com.reggie.service.CategoryService;
 import com.reggie.service.DishFlavorService;
 import com.reggie.service.DishService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,15 +25,28 @@ public class DishController {
     @Autowired
     private DishFlavorService dishFlavorService;
 
+    @Autowired
+    private CategoryService categoryService;
+
+    /**
+     * 菜品分页，除了需要查询基本的菜品信息，还要需要展示图片，菜品分类
+     * @param page
+     * @param pageSize
+     * @param name
+     * @return
+     */
     @GetMapping("/page")
     public R<Page> page(int page,int pageSize,String name){
         log.info("page = {},pageSize = {},name = {}", page, pageSize, name);
         Page pageInfo = new Page<>(page, pageSize);
+        Page<DishDto> dishDtoPage = new Page<>();
         LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.like(StringUtils.isNotBlank(name),Dish::getName,name);
+        queryWrapper.like(StringUtils.isNotBlank(name),Dish::getName,name);//name不为空时，才添加过滤条件
         queryWrapper.orderByDesc(Dish::getUpdateTime);
+
+        //执行分页查询
         dishService.page(pageInfo,queryWrapper);
-        return R.success(pageInfo);
+        return R.success(dishDtoPage);
     }
 
     /**
