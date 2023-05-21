@@ -94,7 +94,7 @@ public class DishController {
         return R.success("新增菜品成功");
     }
 
-    @GetMapping("/{id}")  ///{id},在请求参数中拼接id  例如：http://localhost:8080/dish/1413384757047271425
+    @GetMapping("/{id}")  ///{id},在请求参数中拼接id
     public R<DishDto> getDish(@PathVariable Long id){  //@PathVariable 从请求路径中传入参数 id
 
         DishDto dishDto = dishService.getByIdWithFlavor(id);
@@ -113,65 +113,7 @@ public class DishController {
 
         dishService.updateWithDishFlavor(dishDto);
 
-        return R.success("更新菜品成功");
-    }
-
-    /**
-     * 修改启售-停售状态
-     * @param status
-     * @param ids
-     * @return
-     */
-    @PostMapping("/status/{status}")
-    public R<String> discontinueDish(@PathVariable Integer status,Long ids){
-        log.info("status:{}",status);
-        log.info("ids:{}",ids);
-        // update set status =? where ids = ?
-        Dish dish = dishService.getById(ids);
-        if(dish != null){
-            dish.setStatus(status);
-            dishService.updateById(dish);
-            return R.success("更新状态成功");
-        }
-        return R.error("更新状态成功");
-    }
-
-    /**
-     * 删除菜品-采用逻辑删除,http://localhost:8080/dish?ids=1659577818215510017
-     *
-     * http://localhost:8080/dish?ids=1659577818215510017 和
-     * http://localhost:8080/dish/ids=1659577818215510017区别是什么
-     * ?ids=1659577818215510017,方法的请求参数，使用 key=value 的形式传递参数
-     * /ids=1659577818215510017，这是将参数作为路径的一部分进行传递 ，需要注解@PathVariable
-     * @return
-     */
-    @DeleteMapping()
-    public R<String> delete(Long ids){
-        log.info("id:{}",ids);
-        //物理删除
-        if(ids != null){
-            Dish dish = dishService.getById(ids);  //启售状态不可删除！
-            if(dish.getStatus() ==0){
-                dishService.removeById(ids);
-                return R.success("删除菜品成功");
-            }else {
-                return R.error("启售状态不可删除,请更改后再操作");
-            }
-        }
-        //逻辑删除
-//        if(ids != null){
-//            Dish dish = dishService.getById(ids);  //启售状态不可删除！
-//            if(dish.getStatus() ==0){
-////                dishService.removeById(ids);
-//                dish.setIsDeleted(1);
-//                dishService.updateById(dish);
-//                return R.success("删除菜品成功");
-//            }else {
-//                return R.error("启售状态不可删除,请更改后再操作");
-//            }
-//        }
-
-        return R.error("菜品ID为空，删除失败");
+        return R.success("新增菜品成功");
     }
 
 }
