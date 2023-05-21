@@ -166,8 +166,13 @@
             }
             await getDishPage(params).then(res => {
               if (String(res.code) === '1') {
-                this.tableData = res.data.records || []
-                this.counts = res.data.total
+                // this.tableData = res.data.records || []
+                // this.counts = res.data.total
+
+                const records = res.data.records || [];
+                // 筛选未删除的菜品
+                this.tableData = records.filter(item => item.is_deleted !== 1);
+                this.counts = this.tableData.length;
               }
             }).catch(err => {
               this.$message.error('请求出错了：' + err)
@@ -215,6 +220,27 @@
                 } else {
                   this.$message.error(res.msg || '操作失败')
                 }
+
+                // if (res.code === 1) {
+                //   this.$message.success('删除成功！');
+                //   // 判断被删除的菜品是否在当前页的 tableData 数组中
+                //   if (type === '批量') {
+                //     this.checkList.forEach(id => {
+                //       const index = this.tableData.findIndex(item => item.id === id);
+                //       if (index !== -1) {
+                //         this.tableData.splice(index, 1);
+                //       }
+                //     });
+                //   } else {
+                //     const index = this.tableData.findIndex(item => item.id === id);
+                //     if (index !== -1) {
+                //       this.tableData.splice(index, 1);
+                //     }
+                //   }
+                //   this.handleQuery();
+                // } else {
+                //   this.$message.error(res.msg || '操作失败');
+                // }
               }).catch(err => {
                 this.$message.error('请求出错了：' + err)
               })
