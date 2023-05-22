@@ -14,6 +14,7 @@ import com.sun.org.apache.bcel.internal.generic.LineNumberGen;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -117,22 +118,34 @@ public class DishController {
     }
 
     /**
-     * 修改启售-停售状态
+     * 修改启售-停售状态 - 修改，单个或者批量
      * @param status
      * @param ids
      * @return
      */
     @PostMapping("/status/{status}")
-    public R<String> discontinueDish(@PathVariable Integer status,Long ids){
+    public R<String> discontinueDish(@PathVariable Integer status,@RequestParam List<Long> ids){
         log.info("status:{}",status);
         log.info("ids:{}",ids);
         // update set status =? where ids = ?
-        Dish dish = dishService.getById(ids);
-        if(dish != null){
-            dish.setStatus(status);
-            dishService.updateById(dish);
-            return R.success("更新状态成功");
-        }
+//        Dish dish = dishService.getById(ids);
+//        if(dish != null){
+//            dish.setStatus(status);
+//            dishService.updateById(dish);
+//            return R.success("更新状态成功");
+//        }
+//        return R.error("更新状态成功");
+        LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(ids != null,Dish::getId,ids);
+        List<Dish> dishList = dishService.list(queryWrapper);
+
+        List<Object> collect = dishList.stream().map((item -> {
+            LambdaQueryWrapper<Dish> queryWrapper1 = new LambdaQueryWrapper<>();
+            queryWrapper1.eq(Dish::getId, item);
+            dishService.update(queryWrapper1);
+            return item;
+        })).collect(Collectors.toList());
+
         return R.error("更新状态成功");
     }
 
@@ -158,7 +171,7 @@ public class DishController {
                 return R.error("启售状态不可删除,请更改后再操作");
             }
         }
-        //逻辑删除
+//        //逻辑删除
 //        if(ids != null){
 //            Dish dish = dishService.getById(ids);  //启售状态不可删除！
 //            if(dish.getStatus() ==0){
