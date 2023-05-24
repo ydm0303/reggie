@@ -8,6 +8,7 @@ import com.reggie.service.EmployeeService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -90,6 +91,14 @@ public class EmployeeController {
 
         //设置员工初始密码，并且md5加密
         employee.setPassword(DigestUtils.md5DigestAsHex("123456".getBytes()));
+//        if(employee.getUsername() != null){
+//            if (employee.getUsername().length() < 6){
+//                return R.error("用户名长度不能小于6,请重新输入");
+//            }
+//        }
+//        assert employee.getUsername() != null;
+//        employee.setPassword(DigestUtils.md5DigestAsHex(employee.getUsername().getBytes()));
+
 
 //        employee.setCreateTime(LocalDateTime.now());
 //        employee.setUpdateTime(LocalDateTime.now());
