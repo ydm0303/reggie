@@ -121,7 +121,6 @@ public class EmployeeController {
      * @return
      */
     @GetMapping("/page")
-    @Scheduled(initialDelay = 1000 * 60,fixedRate = 60 * 1000 * 2)
     public R<Page> page(int page, int pageSize, String name) {
         log.info("测试,定时任务是否执行");
 

@@ -43,7 +43,6 @@ public class DishController {
      * @return
      */
     @GetMapping("/page")
-    @Scheduled(initialDelay = 1000 * 60,fixedRate = 60 * 1000 * 2)
     public R<Page> page(int page,int pageSize,String name){
         log.info("page = {},pageSize = {},name = {}", page, pageSize, name);
         Page<Dish> pageInfo = new Page<>(page, pageSize);

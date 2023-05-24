@@ -8,7 +8,7 @@
     <contextName>${APP_NAME}</contextName>
 
     <!-- 控制台日志：输出全部日志到控制台 -->
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <Pattern>${ENCODER_PATTERN}</Pattern>
             <charset class="java.nio.charset.Charset">UTF-8</charset>
@@ -56,27 +56,13 @@
             <level>WARN</level>
         </filter>
     </appender>
-    <root>
-        <level level="DEBUG"/>
-        <appender-ref ref="STDOUT"/>
-    </root>
-    <root>
-        <level level="INFO"/>
-        <appender-ref ref="STDOUT"/>
+
+    <root level="DEBUG">
+        <appender-ref ref="CONSOLE"/>
         <appender-ref ref="FILE"/>
         <appender-ref ref="ERROR_FILE"/>
     </root>
-    <root>
-        <level level="WARN"/>
-        <appender-ref ref="STDOUT"/>
-        <appender-ref ref="ERROR_FILE"/>
-    </root>
-    <root>
-        <level level="ERROR"/>
-        <appender-ref ref="ERROR_FILE"/>
-    </root>
-    <logger name="com.hzbank" level="INFO"/>
+
     <logger name="org.springframework" level="WARN"/>
     <logger name="org.apache" level="WARN"/>
-    <logger name="net.sf" value="WARN"/>
 </configuration>
