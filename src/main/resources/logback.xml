@@ -1,89 +1,82 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration debug="false">
+<configuration debug="true">
+    <!--日志文件的保存路径,首先查找系统属性-Dlog.dir,如果存在就使用其；否则，在当前目录下创建名为logs目录做日志存放的目录 -->
+    <property name="LOG_HOME" value="${user.home}/logs"/>
+    <!-- 日志输出格式 -->
+    <property name="ENCODER_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS}[%thread] LINE[%L] %-5level %logger{80} - %msg%n"/>
+    <contextName>${APP_NAME}</contextName>
 
-    <!--定义日志文件的存储地址 勿在 LogBack 的配置中使用相对路径-->
-    <property name="LOG_HOME" value="${user.home}/logs" />
-
-    <!--控制台日志， 控制台输出 -->
+    <!-- 控制台日志：输出全部日志到控制台 -->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度,%msg：日志消息，%n是换行符-->
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] LINE[%L] %-5level %logger{50} - %msg%n</pattern>
-            <charset class="java.io.charset.Charset">UTF-8</charset>
+            <Pattern>${ENCODER_PATTERN}</Pattern>
+            <charset class="java.nio.charset.Charset">UTF-8</charset>
         </encoder>
     </appender>
 
-    <!--文件日志， 按照每天生成日志文件 (Default)-->
+    <!-- 文件输出日志(Default) -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <File>${LOG_HOME}/info.log</File>
+        <!-- 日志记录器的滚动策略，按日期，按大小记录 -->
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <!--日志文件输出的文件名-->
-            <FileNamePattern>${LOG_HOME}/info.%d{yyyy-MM-dd}.%i.log.gz</FileNamePattern>
+            <!-- 每天日志归档路径以及格式 -->
+            <fileNamePattern>${LOG_HOME}/info.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>100MB</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
             <!--日志文件保留天数-->
-            <MaxHistory>30</MaxHistory>
+            <maxHistory>30</maxHistory>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符-->
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %thread %-5level %logger{50} - %msg%n</pattern>
+            <pattern>${ENCODER_PATTERN}</pattern>
+            <charset class="java.nio.charset.Charset">UTF-8</charset>
         </encoder>
-        <!--日志文件最大的大小-->
-        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-            <MaxFileSize>100MB</MaxFileSize>
-        </triggeringPolicy>
     </appender>
 
-    <!--错误文件日志-->
-    <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <!-- 错误日志：用于将错误日志输出到独立文件 -->
+    <appender name="ERROR_FILE"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
         <File>${LOG_HOME}/error.log</File>
+        <!-- 日志记录器的滚动策略，按日期，按大小记录 -->
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <!--日志文件输出的文件名-->
-            <FileNamePattern>${LOG_HOME}/error.%d{yyyy-MM-dd}.%i.log.gz</FileNamePattern>
+            <!-- 每天日志归档路径以及格式 -->
+            <fileNamePattern>${LOG_HOME}/error.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>100MB</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
             <!--日志文件保留天数-->
-            <MaxHistory>30</MaxHistory>
+            <maxHistory>30</maxHistory>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符-->
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %thread %-5level %logger{50} - %msg%n</pattern>
+            <pattern>${ENCODER_PATTERN}</pattern>
+            <charset class="java.nio.charset.Charset">UTF-8</charset>
         </encoder>
-        <!--日志文件最大的大小-->
-        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-            <MaxFileSize>100MB</MaxFileSize>
-        </triggeringPolicy>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>WARN</level>
+        </filter>
     </appender>
-
-    <!-- show parameters for hibernate sql 专为 Hibernate 定制 -->
-    <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE" />
-    <logger name="org.hibernate.type.descriptor.sql.BasicExtractor" level="DEBUG" />
-    <logger name="org.hibernate.SQL" level="DEBUG" />
-    <logger name="org.hibernate.engine.QueryParameters" level="DEBUG" />
-    <logger name="org.hibernate.engine.query.HQLQueryPlan" level="DEBUG" />
-
-    <!--myibatis log configure-->
-    <logger name="com.apache.ibatis" level="INFO"/>
-    <logger name="java.sql.Connection" level="DEBUG"/>
-    <logger name="java.sql.Statement" level="DEBUG"/>
-    <logger name="java.sql.PreparedStatement" level="DEBUG"/>
-
-    <!-- 日志输出级别 -->
-    <root level="DEBUG">
-        <appender-ref ref="STDOUT" />
+    <root>
+        <level level="DEBUG"/>
+        <appender-ref ref="STDOUT"/>
     </root>
-    <root level="INFO">
-        <appender-ref ref="STDOUT" />
+    <root>
+        <level level="INFO"/>
+        <appender-ref ref="STDOUT"/>
         <appender-ref ref="FILE"/>
         <appender-ref ref="ERROR_FILE"/>
     </root>
-    <root level="WARN">
-        <appender-ref ref="STDOUT" />
-        <appender-ref ref="ERROR_FILE" />
+    <root>
+        <level level="WARN"/>
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="ERROR_FILE"/>
     </root>
-    <root level="ERROR">
-        <appender-ref ref="ERROR_FILE" />
+    <root>
+        <level level="ERROR"/>
+        <appender-ref ref="ERROR_FILE"/>
     </root>
+    <logger name="com.hzbank" level="INFO"/>
+    <logger name="org.springframework" level="WARN"/>
+    <logger name="org.apache" level="WARN"/>
+    <logger name="net.sf" value="WARN"/>
 </configuration>

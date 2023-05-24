@@ -14,6 +14,7 @@ import com.sun.org.apache.bcel.internal.generic.LineNumberGen;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,6 +43,7 @@ public class DishController {
      * @return
      */
     @GetMapping("/page")
+    @Scheduled(initialDelay = 1000 * 60,fixedRate = 60 * 1000 * 2)
     public R<Page> page(int page,int pageSize,String name){
         log.info("page = {},pageSize = {},name = {}", page, pageSize, name);
         Page<Dish> pageInfo = new Page<>(page, pageSize);
