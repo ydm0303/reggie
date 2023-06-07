@@ -21,17 +21,19 @@ public class TaskConfig {
     }
 
     @Bean
-    public CronTriggerFactoryBean trigger(JobDetail jobDetail){
+    public CronTriggerFactoryBean trigger(JobDetail jobDetail123){
         CronTriggerFactoryBean factoryBean = new CronTriggerFactoryBean();
-        factoryBean.setJobDetail(jobDetail);
+        factoryBean.setJobDetail(jobDetail123);
+        //设置延时启动 ms
+        factoryBean.setStartDelay(10000);
         factoryBean.setCronExpression("0/10 * * * * ?");
         return factoryBean;
     }
 
     @Bean
-    public SchedulerFactoryBean scheduler(Trigger trigger){
+    public SchedulerFactoryBean scheduler(Trigger trigger123){
         SchedulerFactoryBean schedulerFactoryBean = new SchedulerFactoryBean();
-        schedulerFactoryBean.setTriggers(trigger);
+        schedulerFactoryBean.setTriggers(trigger123);
         return schedulerFactoryBean;
     }
 

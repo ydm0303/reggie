@@ -1,9 +1,7 @@
 package com.reggie.task;
 
 import lombok.extern.slf4j.Slf4j;
-import org.quartz.JobDataMap;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
+import org.quartz.*;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
 
@@ -21,8 +19,11 @@ public class TestJob extends QuartzJobBean {
         JobDataMap jobDataMap = jobExecutionContext.getJobDetail().getJobDataMap();
         String arms = jobDataMap.getString("arms");
 
+        JobDetail jobDetail = jobExecutionContext.getJobDetail();
+        Class<? extends Job> jobClass = jobDetail.getJobClass();
+
         String dateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         log.info("TestJob,定时时间：" + dateTime);
-        log.info("arms参数：" + arms);
+        log.info("arms参数：" + arms );
     }
 }
