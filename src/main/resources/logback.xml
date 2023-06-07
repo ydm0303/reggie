@@ -4,7 +4,7 @@
     <property name="LOG_HOME" value="${user.home}/logs"/>
     <!-- 日志输出格式 -->
     <property name="ENCODER_PATTERN"
-              value="%d{yyyy-MM-dd HH:mm:ss.SSS}[%thread] LINE[%L] %-5level %logger{80} - %msg%n"/>
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS}[%thread] LINE[%L] [%-5level] %logger{80} - %msg%n"/>
     <contextName>${APP_NAME}</contextName>
 
     <!-- 控制台日志：输出全部日志到控制台 -->
@@ -57,12 +57,22 @@
         </filter>
     </appender>
 
-    <root level="DEBUG">
+    <root level="INFO">
         <appender-ref ref="CONSOLE"/>
-        <appender-ref ref="FILE"/>
-        <appender-ref ref="ERROR_FILE"/>
     </root>
-
+<!--    <root level="INFO">-->
+<!--        <appender-ref ref="CONSOLE"/>-->
+<!--        <appender-ref ref="FILE"/>-->
+<!--        <appender-ref ref="ERROR_FILE"/>-->
+<!--    </root>-->
+<!--    <root level="WARN">-->
+<!--        <appender-ref ref="CONSOLE"/>-->
+<!--        <appender-ref ref="ERROR_FILE"/>-->
+<!--    </root>-->
+<!--    <root level="ERROR">-->
+<!--        <appender-ref ref="CONSOLE"/>-->
+<!--        <appender-ref ref="ERROR_FILE"/>-->
+<!--    </root>-->
     <logger name="org.springframework" level="WARN"/>
     <logger name="org.apache" level="WARN"/>
 </configuration>
