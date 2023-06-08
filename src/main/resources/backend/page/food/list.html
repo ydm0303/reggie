@@ -166,8 +166,13 @@
             }
             await getDishPage(params).then(res => {
               if (String(res.code) === '1') {
-                this.tableData = res.data.records || []
-                this.counts = res.data.total
+                // this.tableData = res.data.records || []
+                // this.counts = res.data.total
+
+                const records = res.data.records || [];
+                // 筛选未删除的菜品
+                this.tableData = records.filter(item => item.is_deleted !== 1);
+                this.counts = this.tableData.length;
               }
             }).catch(err => {
               this.$message.error('请求出错了：' + err)
