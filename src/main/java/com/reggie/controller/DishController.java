@@ -235,4 +235,19 @@ public class DishController {
         return R.error("菜品ID为空，删除失败");
     }
 
+    /**
+     *
+     * @return
+     */
+    @GetMapping("/list")
+    public R<List<Dish>> list(Dish dish){
+    LambdaQueryWrapper<Dish> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+    lambdaQueryWrapper.eq(dish.getCategoryId() != null,Dish::getCategoryId,dish.getCategoryId());
+    lambdaQueryWrapper.orderByDesc(Dish::getSort).orderByDesc(Dish::getUpdateTime);
+
+    List<Dish> list = dishService.list(lambdaQueryWrapper);
+    return R.success(list);
+    }
+
+
 }

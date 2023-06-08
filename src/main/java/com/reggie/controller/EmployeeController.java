@@ -8,8 +8,6 @@ import com.reggie.service.EmployeeService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -122,8 +120,6 @@ public class EmployeeController {
      */
     @GetMapping("/page")
     public R<Page> page(int page, int pageSize, String name) {
-        log.info("测试,定时任务是否执行");
-
         log.info("page = {},pageSize = {},name = {}", page, pageSize, name);
         //构造分页构造器
         Page pageInfo = new Page(page, pageSize);
