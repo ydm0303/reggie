@@ -236,13 +236,15 @@ public class DishController {
     }
 
     /**
-     *
+     *根据条件查询对应的菜品数据
      * @return
      */
     @GetMapping("/list")
     public R<List<Dish>> list(Dish dish){
     LambdaQueryWrapper<Dish> lambdaQueryWrapper = new LambdaQueryWrapper<>();
     lambdaQueryWrapper.eq(dish.getCategoryId() != null,Dish::getCategoryId,dish.getCategoryId());
+    //添加条件，查询状态为启售的
+    lambdaQueryWrapper.eq(Dish::getStatus,1);
     lambdaQueryWrapper.orderByDesc(Dish::getSort).orderByDesc(Dish::getUpdateTime);
 
     List<Dish> list = dishService.list(lambdaQueryWrapper);
