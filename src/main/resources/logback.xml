@@ -21,7 +21,7 @@
         <!-- 日志记录器的滚动策略，按日期，按大小记录 -->
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- 每天日志归档路径以及格式 -->
-            <fileNamePattern>${LOG_HOME}/info.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <fileNamePattern>${LOG_HOME}/%d{yyyy-MM-dd}/info.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>100MB</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
@@ -41,7 +41,7 @@
         <!-- 日志记录器的滚动策略，按日期，按大小记录 -->
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- 每天日志归档路径以及格式 -->
-            <fileNamePattern>${LOG_HOME}/error.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <fileNamePattern>${LOG_HOME}/%d{yyyy-MM-dd}/error.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>100MB</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
@@ -60,19 +60,6 @@
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
     </root>
-<!--    <root level="INFO">-->
-<!--        <appender-ref ref="CONSOLE"/>-->
-<!--        <appender-ref ref="FILE"/>-->
-<!--        <appender-ref ref="ERROR_FILE"/>-->
-<!--    </root>-->
-<!--    <root level="WARN">-->
-<!--        <appender-ref ref="CONSOLE"/>-->
-<!--        <appender-ref ref="ERROR_FILE"/>-->
-<!--    </root>-->
-<!--    <root level="ERROR">-->
-<!--        <appender-ref ref="CONSOLE"/>-->
-<!--        <appender-ref ref="ERROR_FILE"/>-->
-<!--    </root>-->
     <logger name="org.springframework" level="WARN"/>
     <logger name="org.apache" level="WARN"/>
 </configuration>
