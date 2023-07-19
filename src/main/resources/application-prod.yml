@@ -6,7 +6,7 @@ spring:
   datasource:
     druid:
       driver-class-name: com.mysql.cj.jdbc.Driver
-      url: jdbc:mysql://rm-cn-uax38956c0010uko.rwlb.rds.aliyuncs.com:3306/reggie?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&allowMultiQueries=true&useSSL=false
+      url: jdbc:mysql://yangdongmingaliyundbs.rwlb.rds.aliyuncs.com:3306/reggie?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&allowMultiQueries=true&useSSL=false
       username: root
       password: eNTrn5Cj-jQpqa%
 mybatis-plus:
