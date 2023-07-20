@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration debug="true">
+    <!-- 应用名称 -->
+    <property name="APP_NAME" value="syncLoan"/>
     <!--日志文件的保存路径,首先查找系统属性-Dlog.dir,如果存在就使用其；否则，在当前目录下创建名为logs目录做日志存放的目录 -->
     <property name="LOG_HOME" value="${user.home}/logs"/>
     <!-- 日志输出格式 -->
     <property name="ENCODER_PATTERN"
-              value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] LINE[%L][%-5level]%logger{80} - %msg%n"/>
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS}[%thread] LINE[%L] %-5level %logger{80} - %msg%n"/>
     <contextName>${APP_NAME}</contextName>
 
     <!-- 控制台日志：输出全部日志到控制台 -->
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <Pattern>${ENCODER_PATTERN}</Pattern>
             <charset class="java.nio.charset.Charset">UTF-8</charset>
@@ -17,11 +19,11 @@
 
     <!-- 文件输出日志(Default) -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <File>${LOG_HOME}/info.log</File>
+        <File>${LOG_HOME}/output.log</File>
         <!-- 日志记录器的滚动策略，按日期，按大小记录 -->
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- 每天日志归档路径以及格式 -->
-            <fileNamePattern>${LOG_HOME}/%d{yyyy-MM-dd}/info.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <fileNamePattern>${LOG_HOME}/output.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>100MB</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
@@ -33,7 +35,6 @@
             <charset class="java.nio.charset.Charset">UTF-8</charset>
         </encoder>
     </appender>
-
     <!-- 错误日志：用于将错误日志输出到独立文件 -->
     <appender name="ERROR_FILE"
               class="ch.qos.logback.core.rolling.RollingFileAppender">
@@ -41,7 +42,7 @@
         <!-- 日志记录器的滚动策略，按日期，按大小记录 -->
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- 每天日志归档路径以及格式 -->
-            <fileNamePattern>${LOG_HOME}/%d{yyyy-MM-dd}/error.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <fileNamePattern>${LOG_HOME}/error.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>100MB</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
@@ -56,23 +57,27 @@
             <level>WARN</level>
         </filter>
     </appender>
-
-    <root level="INFO">
-        <appender-ref ref="CONSOLE"/>
+    <root>
+        <level level="DEBUG"/>
+        <appender-ref ref="STDOUT"/>
     </root>
-<!--    <root level="INFO">-->
-<!--        <appender-ref ref="CONSOLE"/>-->
-<!--        <appender-ref ref="FILE"/>-->
-<!--        <appender-ref ref="ERROR_FILE"/>-->
-<!--    </root>-->
-<!--    <root level="WARN">-->
-<!--        <appender-ref ref="CONSOLE"/>-->
-<!--        <appender-ref ref="ERROR_FILE"/>-->
-<!--    </root>-->
-<!--    <root level="ERROR">-->
-<!--        <appender-ref ref="CONSOLE"/>-->
-<!--        <appender-ref ref="ERROR_FILE"/>-->
-<!--    </root>-->
+    <root>
+        <level level="INFO"/>
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="ERROR_FILE"/>
+    </root>
+    <root>
+        <level level="WARN"/>
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="ERROR_FILE"/>
+    </root>
+    <root>
+        <level level="ERROR"/>
+        <appender-ref ref="ERROR_FILE"/>
+    </root>
+    <logger name="com.hzbank" level="INFO"/>
     <logger name="org.springframework" level="WARN"/>
     <logger name="org.apache" level="WARN"/>
+    <logger name="net.sf" value="WARN"/>
 </configuration>
