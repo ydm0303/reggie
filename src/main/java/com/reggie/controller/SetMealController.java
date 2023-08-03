@@ -100,4 +100,12 @@ public class SetMealController {
         return R.success("套餐数据删除成功");
     }
 
+    /**
+     * 起售停售套餐
+     * @return
+     */
+    public R<String> open(){
+        return null;
+    }
+
 }
