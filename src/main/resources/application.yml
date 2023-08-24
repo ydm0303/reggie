@@ -3,3 +3,10 @@ server:
 spring:
   profiles:
     active: dev
+  datasource:
+    druid:
+      initial-size: 10 #初始化时物理连接个数
+      min-idle: 10 #最小连接池数量
+      max-active: 30 #最大连接池数量
+      validation-query: SELECT 'X' #用来检测连接是否有效的sql，必须是一个查询语句
+      validation-query-timeout: 10 #检查连接是否有效的超时时间 单位秒
