@@ -1,6 +1,7 @@
 package com.reggie.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.reggie.common.R;
 import com.reggie.dto.SetmealDto;
@@ -98,6 +99,39 @@ public class SetMealController {
         log.info("ids:{}",ids);
         setMealService.removeWithDish(ids);
         return R.success("套餐数据删除成功");
+    }
+
+    /**
+     * 启停套餐
+     * @param ids
+     * @return
+     */
+    @PostMapping("status/{status}")
+    public R<String> update(@PathVariable Integer status ,@RequestParam List<Long> ids){
+        log.info("status ===========>:{}",status);
+        log.info("ids ===========>:{}",ids);
+
+        if (ids.size() > 1) { //批量
+            LambdaQueryWrapper<Setmeal> wrapper2 = new LambdaQueryWrapper<>();
+            wrapper2.in(ids != null ,Setmeal::getId,ids);
+            List<Setmeal> list = setMealService.list(wrapper2);
+            for (Setmeal setmeal : list) {
+                if (setmeal.getStatus() == 0){
+                    return R.error("批量启停时，售卖状态只能为【停售/起售】的菜品,请重新操作！");
+                }
+                setmeal.setStatus(status);
+            }
+            setMealService.updateBatchById(list);
+        }
+
+        QueryWrapper<Setmeal> setmealQueryWrapper = new QueryWrapper<>();
+        setmealQueryWrapper.lambda().in(Setmeal::getId,ids);
+        List<Setmeal> list = setMealService.list(setmealQueryWrapper);
+        for (Setmeal setmeal : list) {
+            setmeal.setStatus(status);
+            setMealService.updateById(setmeal);
+        }
+        return R.success("套餐数据更新成功！");
     }
 
 

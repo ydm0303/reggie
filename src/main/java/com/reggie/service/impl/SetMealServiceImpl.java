@@ -1,6 +1,7 @@
 package com.reggie.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.reggie.common.CustomException;
 import com.reggie.dto.SetmealDto;
@@ -23,6 +24,9 @@ public class SetMealServiceImpl extends ServiceImpl<SetMealMapper, Setmeal> impl
 
     @Autowired
     private SetMealDishService setMealDishService;
+
+    @Autowired
+    private SetMealService setMealService;
 
     /**
      * 新增套餐，同时保留套餐和菜品的关联关系
