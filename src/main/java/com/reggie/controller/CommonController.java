@@ -23,7 +23,7 @@ import java.util.UUID;
 @Slf4j
 public class CommonController {
 
-    @Value("${reggie.uploadPath}")
+    @Value("${reggie.uploadPath}")   //D:\abc
     private String uploadPath;
 
     @PostMapping("/upload")
@@ -47,7 +47,9 @@ public class CommonController {
 
         try {
             //将临时文件转存到指定位置
-            file.transferTo(new File(uploadPath + fileName));
+            String filePath = uploadPath + "/" + fileName;
+            log.info("filePath:{}",filePath);
+            file.transferTo(new File(filePath));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -59,7 +61,8 @@ public class CommonController {
 
         try {
             //输入流。通过输入流读取文件
-            FileInputStream inputStream = new FileInputStream(new File(uploadPath + name));
+            log.info("name:{}",name);
+            FileInputStream inputStream = new FileInputStream(new File(uploadPath +"/"+ name));
 
             //输出流。通过输出流将文件写回浏览器，在浏览器展示图片
             ServletOutputStream outputStream = response.getOutputStream();

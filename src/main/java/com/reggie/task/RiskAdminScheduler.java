@@ -16,13 +16,13 @@ public class RiskAdminScheduler {
     private static final String THREE_MIN = "PT20S"; //设置为 PT3M 表示任务将至少锁定 3 分钟，即在这个时间范围内，其他节点不会执行相同的任务。\
     private static Integer count = 1;
 
-    @Scheduled(cron = "0/5 * * * * ? ")
+//    @Scheduled(cron = "0/5 * * * * ? ")
     @SchedulerLock(name = "test1",lockAtLeastForString = THREE_MIN,lockAtMostForString = SIXTY_MIN)
     public void test1() {
         log.info(Thread.currentThread().getName() + "->>>任务1执行第：" + (count++) + "次");
     }
 
-    @Scheduled(cron = "0/5 * * * * ? ")
+//    @Scheduled(cron = "0/5 * * * * ? ")
     @SchedulerLock(name = "test2",lockAtLeastForString = THREE_MIN,lockAtMostForString = SIXTY_MIN)
     public void test2() {
         log.info(Thread.currentThread().getName() + "->>>任务2执行第：" + (count++) + "次");
