@@ -6,9 +6,9 @@ spring:
   datasource:
     druid:
       driver-class-name: com.mysql.cj.jdbc.Driver
-      url: jdbc:mysql://yangdongmingaliyundbs.rwlb.rds.aliyuncs.com:3306/reggie?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&allowMultiQueries=true&useSSL=false
-      username: root
-      password: eNTrn5Cj-jQpqa%
+      url: jdbc:mysql://avnadmin:AVNS_TNUNVSx6yKRm2S9Wo0K@mysql-f90da0d-yangdongming0303-6dfa.g.aivencloud.com:21098/defaultdb?ssl-mode=REQUIRED/defaultdb
+      username: avnadmin
+      password: AVNS_TNUNVSx6yKRm2S9Wo0K
 mybatis-plus:
   configuration:
     #在映射实体或者属性时，将数据库中表名和字段名中的下划线去掉，按照驼峰命名法映射
