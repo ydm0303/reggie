@@ -373,3 +373,12 @@ CREATE TABLE `user` (
   `status` int(11) DEFAULT '0' COMMENT '状态 0:禁用，1:正常',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='用户信息';
+
+CREATE TABLE shedlock (
+                          name VARCHAR(64) NOT NULL,
+                          lock_until TIMESTAMP(3) NOT NULL,
+                          locked_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+                          locked_by VARCHAR(255) NOT NULL,
+                          PRIMARY KEY (name)
+);
+
