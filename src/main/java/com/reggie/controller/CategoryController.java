@@ -2,6 +2,8 @@ package com.reggie.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.reggie.common.AuditLogger;
+import com.reggie.common.BaseContext;
 import com.reggie.common.R;
 import com.reggie.entity.Category;
 import com.reggie.service.CategoryService;
@@ -23,12 +25,13 @@ public class CategoryController {
     public R<String> save(@RequestBody Category category){
         log.info("category{}",category);
         categoryService.save(category);
+        AuditLogger.create("EMPLOYEE", BaseContext.getCurrentId(), "CATEGORY", category.getId(), category.getName());
         return R.success("新增分类成功");
 
     }
 
     @GetMapping("/page")
-    public R<Page> page(int page,int pageSize){
+    public R<Page> page(int page, int pageSize){
         //分页构造器
         Page pageInfo = new Page(page, pageSize);
         //构造查询条件
@@ -46,7 +49,12 @@ public class CategoryController {
 
         log.info("删除分类，id为{}",ids);
 
+        Category category = categoryService.getById(ids);
+        String categoryName = category != null ? category.getName() : "未知";
+
         categoryService.remove(ids);
+
+        AuditLogger.delete("EMPLOYEE", BaseContext.getCurrentId(), "CATEGORY", ids, categoryName);
 
         return R.success("分类信息删除成功");
 
@@ -61,7 +69,27 @@ public class CategoryController {
     public R<String> update(@RequestBody Category category){
         log.info("修改分类信息{}",category);
 
+        Category oldCategory = categoryService.getById(category.getId());
+        String changes = "";
+        if (oldCategory != null) {
+            StringBuilder sb = new StringBuilder();
+            if (!oldCategory.getName().equals(category.getName())) {
+                sb.append("name:").append(oldCategory.getName()).append("->").append(category.getName()).append("; ");
+            }
+            if (oldCategory.getSort() != category.getSort()) {
+                sb.append("sort:").append(oldCategory.getSort()).append("->").append(category.getSort()).append("; ");
+            }
+            if (oldCategory.getType() != category.getType()) {
+                sb.append("type:").append(oldCategory.getType()).append("->").append(category.getType()).append("; ");
+            }
+            changes = sb.toString();
+        }
+
         categoryService.updateById(category);
+
+        if (!changes.isEmpty()) {
+            AuditLogger.update("EMPLOYEE", BaseContext.getCurrentId(), "CATEGORY", category.getId(), changes);
+        }
 
         return R.success("更新分类成功");
     }

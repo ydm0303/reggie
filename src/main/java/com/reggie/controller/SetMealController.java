@@ -1,8 +1,9 @@
 package com.reggie.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.reggie.common.AuditLogger;
+import com.reggie.common.BaseContext;
 import com.reggie.common.R;
 import com.reggie.dto.SetmealDto;
 import com.reggie.entity.Category;
@@ -46,6 +47,8 @@ public class SetMealController {
         log.info("套餐信息：{}",setmealDto);
 
         setMealService.saveWithDish(setmealDto);
+
+        AuditLogger.create("EMPLOYEE", BaseContext.getCurrentId(), "SETMEAL", setmealDto.getId(), setmealDto.getName());
 
         return R.success("新增套餐成功。");
     }
@@ -98,7 +101,19 @@ public class SetMealController {
     @DeleteMapping
     public R<String> delete(@RequestParam List<Long> ids){
         log.info("ids:{}",ids);
+
+        // 记录删除前的套餐名称用于审计
+        LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(Setmeal::getId, ids);
+        List<Setmeal> list = setMealService.list(queryWrapper);
+
         setMealService.removeWithDish(ids);
+
+        // 审计日志：记录每个套餐的删除
+        for (Setmeal setmeal : list) {
+            AuditLogger.delete("EMPLOYEE", BaseContext.getCurrentId(), "SETMEAL", setmeal.getId(), setmeal.getName());
+        }
+
         return R.success("套餐数据删除成功");
     }
 
@@ -132,8 +147,11 @@ public class SetMealController {
         // 批量更新状态
         for (Setmeal setmeal : list) {
             if (setmeal.getStatus() != status) {
+                int oldStatus = setmeal.getStatus();
                 setmeal.setStatus(status);
                 setMealService.updateById(setmeal);
+                // 审计日志：记录状态变更
+                AuditLogger.statusChange("EMPLOYEE", BaseContext.getCurrentId(), "SETMEAL", setmeal.getId(), oldStatus, status);
             }
         }
 

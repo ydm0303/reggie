@@ -45,12 +45,15 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
     public Orders submit(OrdersDto ordersDto) {
         Long userId = BaseContext.getCurrentId();
 
+        log.info("用户下单开始，userId: {}", userId);
+
         // 1. 获取当前用户购物车数据
         LambdaQueryWrapper<ShoppingCart> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ShoppingCart::getUserId, userId);
         List<ShoppingCart> shoppingCartList = shoppingCartService.list(queryWrapper);
 
         if (shoppingCartList == null || shoppingCartList.isEmpty()) {
+            log.warn("下单失败，购物车为空，userId: {}", userId);
             throw new CustomException("购物车为空，不能下单");
         }
 
@@ -58,6 +61,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
         Long addressBookId = ordersDto.getAddressBookId();
         AddressBook addressBook = addressBookService.getById(addressBookId);
         if (addressBook == null) {
+            log.warn("下单失败，地址信息有误，addressBookId: {}", addressBookId);
             throw new CustomException("地址信息有误，不能下单");
         }
 
@@ -66,6 +70,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
         for (ShoppingCart cart : shoppingCartList) {
             amount = amount.add(cart.getAmount().multiply(new BigDecimal(cart.getNumber())));
         }
+
+        log.info("订单金额计算完成，amount: {}, 商品数量: {}", amount, shoppingCartList.size());
 
         // 4. 构建订单对象
         Orders orders = new Orders();
@@ -82,6 +88,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
         orders.setConsignee(addressBook.getConsignee());
 
         this.save(orders);
+
+        log.info("订单主表保存成功，orderId: {}, 订单号: {}", orders.getId(), orders.getNumber());
 
         // 5. 保存订单明细
         List<OrderDetail> orderDetailList = shoppingCartList.stream().map(cart -> {
@@ -102,8 +110,12 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
             orderDetailMapper.insert(orderDetail);
         }
 
+        log.info("订单明细保存成功，orderId: {}, 明细条数: {}", orders.getId(), orderDetailList.size());
+
         // 6. 清空购物车
         shoppingCartService.clean(userId);
+
+        log.info("购物车已清空，userId: {}", userId);
 
         return orders;
     }
@@ -182,10 +194,17 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
     public void again(Long id) {
         Long userId = BaseContext.getCurrentId();
 
+        log.info("再来一单，userId: {}, orderId: {}", userId, id);
+
         // 查询订单明细
         LambdaQueryWrapper<OrderDetail> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(OrderDetail::getOrderId, id);
         List<OrderDetail> orderDetailList = orderDetailMapper.selectList(queryWrapper);
+
+        if (orderDetailList == null || orderDetailList.isEmpty()) {
+            log.warn("再来一单失败，订单明细为空，orderId: {}", id);
+            return;
+        }
 
         // 将订单明细转为购物车对象并批量保存
         List<ShoppingCart> shoppingCartList = orderDetailList.stream().map(detail -> {
@@ -203,6 +222,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
         }).collect(Collectors.toList());
 
         shoppingCartService.saveBatch(shoppingCartList);
+
+        log.info("再来一单完成，userId: {}, 添加购物车条数: {}", userId, shoppingCartList.size());
     }
 
     @Override

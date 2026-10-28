@@ -2,6 +2,7 @@ package com.reggie.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.reggie.common.AuditLogger;
 import com.reggie.common.R;
 import com.reggie.entity.Employee;
 import com.reggie.service.EmployeeService;
@@ -49,19 +50,25 @@ public class EmployeeController {
         queryWrapper.eq(Employee::getUsername, employee.getUsername());
         Employee emp = employeeService.getOne(queryWrapper);
 
+        String clientIp = request.getRemoteAddr();
+
         if (emp == null) {
+            AuditLogger.login("EMPLOYEE", null, username, clientIp, false, "用户不存在");
             return R.error("不存在用户！");
         }
 
         if (!emp.getPassword().equals(password)) {
+            AuditLogger.login("EMPLOYEE", emp.getId(), username, clientIp, false, "密码错误");
             return R.error("密码错误，登陆失败！");
         }
 
         if (emp.getStatus() == 0) {
+            AuditLogger.login("EMPLOYEE", emp.getId(), username, clientIp, false, "账号已禁用");
             return R.error("账号已禁用！");
         }
 
         request.getSession().setAttribute("employee", emp.getId());
+        AuditLogger.login("EMPLOYEE", emp.getId(), username, clientIp, true, null);
         return R.success(emp);
     }
 
@@ -73,6 +80,15 @@ public class EmployeeController {
      */
     @PostMapping("/logout")
     public R<String> logout(HttpServletRequest request) {
+        Long empId = (Long) request.getSession().getAttribute("employee");
+        String username = null;
+        if (empId != null) {
+            Employee emp = employeeService.getById(empId);
+            if (emp != null) {
+                username = emp.getUsername();
+            }
+        }
+        AuditLogger.logout("EMPLOYEE", empId, username);
         request.getSession().removeAttribute("employee");
         return R.success("退出成功！");
     }
@@ -109,6 +125,7 @@ public class EmployeeController {
 
         employeeService.save(employee);
 
+        AuditLogger.create("EMPLOYEE", empId, "EMPLOYEE", employee.getId(), employee.getName());
         return R.success("新增员工成功。");
     }
 
@@ -146,7 +163,27 @@ public class EmployeeController {
         employee.setUpdateUser(empId);
 
         String name = employee.getName();
+
+        // 记录更新前的状态用于审计
+        Employee oldEmployee = employeeService.getById(employee.getId());
+        String changes = "";
+        if (oldEmployee != null) {
+            StringBuilder sb = new StringBuilder();
+            if (!oldEmployee.getName().equals(employee.getName())) {
+                sb.append("name:").append(oldEmployee.getName()).append("->").append(employee.getName()).append("; ");
+            }
+            if (oldEmployee.getStatus() != employee.getStatus()) {
+                sb.append("status:").append(oldEmployee.getStatus()).append("->").append(employee.getStatus()).append("; ");
+            }
+            changes = sb.toString();
+        }
+
         employeeService.updateById(employee);
+
+        if (!changes.isEmpty()) {
+            AuditLogger.update("EMPLOYEE", empId, "EMPLOYEE", employee.getId(), changes);
+        }
+
         if(name != null && name.equals("admin")){
             return R.error("管理员不能禁用！");
         }

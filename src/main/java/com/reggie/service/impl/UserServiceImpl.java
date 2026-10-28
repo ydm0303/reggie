@@ -39,7 +39,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public void sendMsg(String phone) {
         // 生成4位验证码
         String code = ValidateCodeUtils.generateValidateCode(4).toString();
-        log.info("手机号: {}, 验证码: {}", phone, code);
+        log.info("发送验证码，手机号: {}, 验证码: {}", phone, code);
 
         // 存入内存缓存，有效期5分钟
         codeCache.put(phone, new CodeEntry(code, System.currentTimeMillis() + 5 * 60 * 1000));
@@ -50,12 +50,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public User loginByCode(String phone, String code) {
+        log.info("验证码登录尝试，手机号: {}", phone);
+
         // 从内存缓存获取验证码
         CodeEntry entry = codeCache.get(phone);
 
         if (entry == null || entry.isExpired() || !entry.code.equals(code)) {
+            log.warn("验证码校验失败，手机号: {}, 原因: {}", phone,
+                    entry == null ? "验证码不存在" : (entry.isExpired() ? "验证码已过期" : "验证码错误"));
             throw new CustomException("验证码错误或已过期");
         }
+
+        log.debug("验证码校验通过，手机号: {}", phone);
 
         // 查询用户是否存在
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
@@ -64,20 +70,24 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         // 如果不存在，自动注册
         if (user == null) {
+            log.info("用户不存在，自动注册，手机号: {}", phone);
             user = new User();
             user.setPhone(phone);
             user.setStatus(1);
             this.save(user);
+            log.info("用户自动注册成功，userId: {}", user.getId());
         }
 
         // 校验用户状态
         if (user.getStatus() == 0) {
+            log.warn("登录失败，账号已禁用，userId: {}", user.getId());
             throw new CustomException("账号已禁用");
         }
 
         // 删除已使用的验证码
         codeCache.remove(phone);
 
+        log.info("用户登录成功，userId: {}", user.getId());
         return user;
     }
 }

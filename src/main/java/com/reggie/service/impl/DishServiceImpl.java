@@ -9,6 +9,7 @@ import com.reggie.entity.DishFlavor;
 import com.reggie.mapper.DishMapper;
 import com.reggie.service.DishFlavorService;
 import com.reggie.service.DishService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class DishServiceImpl extends ServiceImpl<DishMapper,Dish> implements DishService{
 
@@ -31,6 +33,8 @@ public class DishServiceImpl extends ServiceImpl<DishMapper,Dish> implements Dis
     @Transactional //事务控制，保证数据的一致性,执行失败时，事务回滚，执行成功，事务提交，保存到数据库
     @Override
     public void saveWithDishFlavor(DishDto dishDto) {
+
+        log.info("新增菜品: {}", dishDto.getName());
 
         //保存菜品基本信息
         this.save(dishDto);
@@ -50,10 +54,13 @@ public class DishServiceImpl extends ServiceImpl<DishMapper,Dish> implements Dis
 //        dishFlavorService.saveBatch(dishDto.getFlavors());
         dishFlavorService.saveBatch(dishFlavors);
 
+        log.info("菜品新增成功，id: {}, 口味数量: {}", dishId, dishFlavors.size());
     }
 
     @Override
     public DishDto getByIdWithFlavor(Long id) {
+
+        log.debug("查询菜品详情，id: {}", id);
 
         //1，查询菜品基本信息表dish
         Dish dish = this.getById(id);
@@ -75,6 +82,8 @@ public class DishServiceImpl extends ServiceImpl<DishMapper,Dish> implements Dis
     @Transactional
     public void updateWithDishFlavor(DishDto dishDto) {
 
+        log.info("更新菜品: {}", dishDto.getName());
+
         //1.更新dish基本信息
         this.updateById(dishDto);
         //2.清理当前菜品对应的口味数据 -- dish_flavor -- 删除操作
@@ -90,5 +99,7 @@ public class DishServiceImpl extends ServiceImpl<DishMapper,Dish> implements Dis
         }).collect(Collectors.toList());
 
         dishFlavorService.saveBatch(collect);
+
+        log.info("菜品更新成功，id: {}, 口味数量: {}", dishDto.getId(), collect.size());
     }
 }

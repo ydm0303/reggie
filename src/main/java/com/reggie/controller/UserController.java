@@ -1,5 +1,6 @@
 package com.reggie.controller;
 
+import com.reggie.common.AuditLogger;
 import com.reggie.common.R;
 import com.reggie.entity.User;
 import com.reggie.service.UserService;
@@ -43,7 +44,16 @@ public class UserController {
             return R.error("手机号或验证码不能为空");
         }
 
-        User loginUser = userService.loginByCode(phone, code);
+        String clientIp = request.getRemoteAddr();
+        User loginUser = null;
+
+        try {
+            loginUser = userService.loginByCode(phone, code);
+            AuditLogger.login("USER", loginUser.getId(), phone, clientIp, true, null);
+        } catch (Exception e) {
+            AuditLogger.login("USER", null, phone, clientIp, false, e.getMessage());
+            throw e;
+        }
 
         // 登录成功，存入session
         HttpSession session = request.getSession();
@@ -57,6 +67,15 @@ public class UserController {
      */
     @PostMapping("/loginout")
     public R<String> logout(HttpServletRequest request) {
+        Long userId = (Long) request.getSession().getAttribute("user");
+        String phone = null;
+        if (userId != null) {
+            User user = userService.getById(userId);
+            if (user != null) {
+                phone = user.getPhone();
+            }
+        }
+        AuditLogger.logout("USER", userId, phone);
         request.getSession().removeAttribute("user");
         return R.success("退出成功");
     }

@@ -18,8 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Service
 @Slf4j
+@Service
 public class SetMealServiceImpl extends ServiceImpl<SetMealMapper, Setmeal> implements SetMealService {
 
     @Autowired
@@ -35,6 +35,8 @@ public class SetMealServiceImpl extends ServiceImpl<SetMealMapper, Setmeal> impl
      */
     @Transactional
     public void saveWithDish(SetmealDto setmealDto) {
+        log.info("新增套餐: {}", setmealDto.getName());
+
         //保存套餐基本信息 表setmeal
         this.save(setmealDto);
 
@@ -46,6 +48,8 @@ public class SetMealServiceImpl extends ServiceImpl<SetMealMapper, Setmeal> impl
 
         //保存套餐和菜品关联关系
         setMealDishService.saveBatch(setmealDishes);
+
+        log.info("套餐新增成功，id: {}, 关联菜品数量: {}", setmealDto.getId(), setmealDishes.size());
     }
 
     /**
@@ -55,6 +59,8 @@ public class SetMealServiceImpl extends ServiceImpl<SetMealMapper, Setmeal> impl
      */
     @Transactional
     public void removeWithDish(List<Long> ids) {
+        log.info("删除套餐，ids: {}", ids);
+
         //查询套餐状态，查看是否可以删除
         //delete from setmeal where id in () and status = 1
         LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<>();
@@ -64,8 +70,13 @@ public class SetMealServiceImpl extends ServiceImpl<SetMealMapper, Setmeal> impl
         int count = this.count(queryWrapper);
         if (count > 0) {
             //如果不能删除，抛出业务异常
+            log.warn("套餐删除失败，存在在售套餐数量: {}", count);
             throw new CustomException("套餐正在售卖中，不能删除");
         }
+
+        // 获取套餐名称用于日志
+        List<Setmeal> setmeals = this.listByIds(ids);
+        String names = setmeals.stream().map(Setmeal::getName).collect(Collectors.joining(", "));
 
         //如果可以删除，先删除套餐表中的数据
         this.removeByIds(ids);
@@ -75,5 +86,7 @@ public class SetMealServiceImpl extends ServiceImpl<SetMealMapper, Setmeal> impl
         queryWrapper1.in(SetmealDish::getSetmealId, ids);
         //删除关联表中的数据
         setMealDishService.remove(queryWrapper1);
+
+        log.info("套餐删除成功，ids: {}, 名称: {}", ids, names);
     }
 }

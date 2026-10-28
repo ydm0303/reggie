@@ -2,11 +2,10 @@ package com.reggie.filter;
 
 
 import com.alibaba.fastjson.JSON;
+import com.reggie.common.AuditLogger;
 import com.reggie.common.BaseContext;
 import com.reggie.common.R;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.javassist.compiler.ast.Variable;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.util.AntPathMatcher;
 
 import javax.servlet.*;

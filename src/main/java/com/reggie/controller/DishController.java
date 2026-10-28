@@ -1,8 +1,9 @@
 package com.reggie.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.reggie.common.AuditLogger;
+import com.reggie.common.BaseContext;
 import com.reggie.common.R;
 import com.reggie.dto.DishDto;
 import com.reggie.entity.Category;
@@ -12,6 +13,7 @@ import com.reggie.service.DishFlavorService;
 import com.reggie.service.DishService;
 import com.sun.org.apache.bcel.internal.generic.LineNumberGen;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -43,7 +45,7 @@ public class DishController {
      * @return
      */
     @GetMapping("/page")
-    public R<Page> page(int page,int pageSize,String name){
+    public R<Page> page(int page, int pageSize, String name){
         log.info("page = {},pageSize = {},name = {}", page, pageSize, name);
         Page<Dish> pageInfo = new Page<>(page, pageSize);
         Page<DishDto> dishDtoPage = new Page<>();
@@ -93,6 +95,7 @@ public class DishController {
 
         dishService.saveWithDishFlavor(dishDto);
 
+        AuditLogger.create("EMPLOYEE", BaseContext.getCurrentId(), "DISH", dishDto.getId(), dishDto.getName());
         return R.success("新增菜品成功");
     }
 
@@ -113,7 +116,28 @@ public class DishController {
     public R<String> update(@RequestBody DishDto dishDto){
         log.info(dishDto.toString());
 
+        // 记录更新前信息用于审计
+        DishDto oldDto = dishService.getByIdWithFlavor(dishDto.getId());
+        String changes = "";
+        if (oldDto != null) {
+            StringBuilder sb = new StringBuilder();
+            if (!oldDto.getName().equals(dishDto.getName())) {
+                sb.append("name:").append(oldDto.getName()).append("->").append(dishDto.getName()).append("; ");
+            }
+            if (oldDto.getStatus() != dishDto.getStatus()) {
+                sb.append("status:").append(oldDto.getStatus()).append("->").append(dishDto.getStatus()).append("; ");
+            }
+            if (oldDto.getCategoryId() != null && dishDto.getCategoryId() != null && !oldDto.getCategoryId().equals(dishDto.getCategoryId())) {
+                sb.append("categoryId:").append(oldDto.getCategoryId()).append("->").append(dishDto.getCategoryId()).append("; ");
+            }
+            changes = sb.toString();
+        }
+
         dishService.updateWithDishFlavor(dishDto);
+
+        if (!changes.isEmpty()) {
+            AuditLogger.update("EMPLOYEE", BaseContext.getCurrentId(), "DISH", dishDto.getId(), changes);
+        }
 
         return R.success("更新菜品成功");
     }
@@ -149,8 +173,11 @@ public class DishController {
         // 批量更新状态
         for (Dish dish : dishList) {
             if (dish.getStatus() != status) {
+                int oldStatus = dish.getStatus();
                 dish.setStatus(status);
                 dishService.updateById(dish);
+                // 审计日志：记录每个菜品的状态变更
+                AuditLogger.statusChange("EMPLOYEE", BaseContext.getCurrentId(), "DISH", dish.getId(), oldStatus, status);
             }
         }
 
@@ -182,6 +209,8 @@ public class DishController {
                 // 逻辑删除：设置 is_deleted = 1
                 dish.setIsDeleted(1);
                 dishService.updateById(dish);
+                // 审计日志：记录删除
+                AuditLogger.delete("EMPLOYEE", BaseContext.getCurrentId(), "DISH", dish.getId(), dish.getName());
             }
             return R.success("菜品删除成功");
         }

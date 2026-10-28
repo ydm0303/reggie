@@ -10,9 +10,11 @@ import com.reggie.mapper.CategoryMapper;
 import com.reggie.service.CategoryService;
 import com.reggie.service.DishService;
 import com.reggie.service.SetMealService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> implements CategoryService {
 
@@ -28,6 +30,8 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
      */
     @Override
     public void remove(Long id) {
+        log.info("删除分类，id: {}", id);
+
         LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
         //根据菜品id查询，是否存在关联
         queryWrapper.eq(Dish::getCategoryId,id);
@@ -35,6 +39,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 
         //存在关联才菜品
         if(count1 > 0){
+            log.warn("分类删除失败，关联菜品数量: {}", count1);
             throw new CustomException("当前分类下关联菜品，不能删除");
         }
 
@@ -43,10 +48,12 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         int count2 = setMealService.count(queryWrapper1);
         //抛出业务异常
         if(count2 > 0){
+            log.warn("分类删除失败，关联套餐数量: {}", count2);
             throw new CustomException("当前分分类下关联套餐，不能删除");
         }
 
         //没有关联，删除
+        log.info("分类删除成功，id: {}", id);
         super.removeById(id);
     }
 }

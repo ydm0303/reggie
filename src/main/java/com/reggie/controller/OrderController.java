@@ -1,7 +1,8 @@
 package com.reggie.controller;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.reggie.common.AuditLogger;
+import com.reggie.common.BaseContext;
 import com.reggie.common.R;
 import com.reggie.dto.OrdersDto;
 import com.reggie.entity.OrderDetail;
@@ -28,6 +29,9 @@ public class OrderController {
     public R<Orders> submit(@RequestBody OrdersDto ordersDto) {
         log.info("用户下单: {}", ordersDto);
         Orders orders = orderService.submit(ordersDto);
+
+        AuditLogger.create("USER", BaseContext.getCurrentId(), "ORDER", orders.getId(), "金额:" + orders.getAmount());
+
         return R.success(orders);
     }
 
@@ -56,6 +60,9 @@ public class OrderController {
     public R<String> again(@RequestBody OrdersDto ordersDto) {
         Long id = ordersDto.getId();
         orderService.again(id);
+
+        AuditLogger.create("USER", BaseContext.getCurrentId(), "ORDER", id, "再来一单");
+
         return R.success("已加入购物车");
     }
 
@@ -76,7 +83,15 @@ public class OrderController {
      */
     @PutMapping
     public R<String> updateStatus(@RequestBody Orders orders) {
+        Orders oldOrder = orderService.getById(orders.getId());
+        int oldStatus = oldOrder != null ? oldOrder.getStatus() : -1;
+
         orderService.updateStatus(orders);
+
+        if (oldStatus != -1 && oldStatus != orders.getStatus()) {
+            AuditLogger.statusChange("EMPLOYEE", BaseContext.getCurrentId(), "ORDER", orders.getId(), oldStatus, orders.getStatus());
+        }
+
         return R.success("修改订单状态成功");
     }
 

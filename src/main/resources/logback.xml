@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <property name="log.path" value="${user.home}/logs"/>
+    <!-- 控制台纯文本输出（去除颜色），包含 traceId -->
     <property name="console.log.pattern"
-              value="%yellow([%d{yyyy-MM-dd HH:mm:ss:SSS}]) %green([%thread]) %highlight([ %-5level ]) → %boldMagenta([%logger{36}]%n) %msg%n"/>
-    <property name="log.pattern" value="%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"/>
+              value="[%d{yyyy-MM-dd HH:mm:ss:SSS}] [%thread] [%-5level] [%X{traceId}] [%logger{36}] - %msg%n"/>
+    <property name="log.pattern" value="%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level [%X{traceId}] %logger{36} - %msg%n"/>
+    <!-- 审计日志格式：更详细的操作信息 -->
+    <property name="audit.log.pattern" value="%d{yyyy-MM-dd HH:mm:ss} [%thread] [%X{traceId}] AUDIT - %msg%n"/>
 
     <!-- IDE控制台 输出 -->
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
@@ -129,6 +132,31 @@
         </filter>
     </appender>
 
+    <!-- 审计日志写出 - 独立文件，便于合规归档 -->
+    <appender name="file_audit" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/audit.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>100MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <!-- 审计日志保留更久：90天 -->
+            <fileNamePattern>${log.path}/logs/%d{yyyy-MM-dd}/audit.%i.log.zip</fileNamePattern>
+            <maxHistory>90</maxHistory>
+            <totalSizeCap>500MB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${audit.log.pattern}</pattern>
+            <charset>utf-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- 审计日志异步输出 -->
+    <appender name="async_audit" class="ch.qos.logback.classic.AsyncAppender">
+        <discardingThreshold>0</discardingThreshold>
+        <queueSize>512</queueSize>
+        <appender-ref ref="file_audit"/>
+    </appender>
+
     <!-- info异步输出 -->
     <appender name="async_info" class="ch.qos.logback.classic.AsyncAppender">
         <!-- 不丢失日志.默认的,如果队列的80%已满,则会丢弃TRACT、DEBUG、INFO级别的日志 -->
@@ -160,7 +188,12 @@
     </appender>
 
 
-    <!--系统操作日志-->
+    <!-- 审计日志专用 Logger - 不继承 root，避免重复输出 -->
+    <logger name="com.reggie.audit" level="INFO" additivity="false">
+        <appender-ref ref="async_audit"/>
+    </logger>
+
+    <!-- 系统操作日志 -->
     <root level="info">
         <appender-ref ref="console" />
         <appender-ref ref="async_info" />
