@@ -1,49 +1,70 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>菩提阁后台管理</title>
+  <title>慢食光·工作台</title>
   <link rel="shortcut icon" href="../../favicon.ico">
   <!-- 引入样式 -->
   <link rel="stylesheet" href="../../plugins/element-ui/index.css" />
   <link rel="stylesheet" href="../../styles/common.css">
   <link rel="stylesheet" href="../../styles/login.css">
   <link rel="stylesheet" href="../../styles/icon/iconfont.css" />
-  <style>
-    .body{
-      min-width: 1366px;
-    }
-  </style>
-</head> 
+</head>
 
 <body>
   <div class="login" id="login-app">
-    <div class="login-box">
-      <img src="../../images/login/login-l.png" alt="">
-      <div class="login-form">
-        <el-form ref="loginForm" :model="loginForm" :rules="loginRules" >
-          <div class="login-form-title">
-            <img src="../../images/login/logo.png" style="width:139px;height:42px;" alt="" />
+    <div class="login-container">
+      <div class="login-card">
+        <div class="brand-header">
+          <div class="brand-logo" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+              <path d="M12 6v6l4 2"/>
+            </svg>
           </div>
+          <h1 class="brand-name">慢食光</h1>
+          <p class="brand-subtitle">慢食光·工作台</p>
+        </div>
+
+        <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form">
           <el-form-item prop="username">
-            <el-input v-model="loginForm.username" type="text" auto-complete="off" placeholder="账号" maxlength="20"
+            <el-input
+              v-model="loginForm.username"
+              type="text"
+              auto-complete="off"
+              placeholder="账号"
+              maxlength="20"
               prefix-icon="iconfont icon-user" />
           </el-form-item>
           <el-form-item prop="password">
-            <el-input v-model="loginForm.password" type="password" placeholder="密码" prefix-icon="iconfont icon-lock" maxlength="20"
+            <el-input
+              v-model="loginForm.password"
+              type="password"
+              placeholder="密码"
+              prefix-icon="iconfont icon-lock"
+              maxlength="20"
               @keyup.enter.native="handleLogin" />
           </el-form-item>
           <el-form-item style="width:100%;">
-            <el-button :loading="loading" class="login-btn" size="medium" type="primary" style="width:100%;"
+            <el-button
+              :loading="loading"
+              class="login-btn"
+              size="medium"
+              type="primary"
+              style="width:100%;"
               @click.native.prevent="handleLogin">
               <span v-if="!loading">登录</span>
               <span v-else>登录中...</span>
             </el-button>
           </el-form-item>
         </el-form>
+
+        <div class="login-footer">
+          <span>© 2024 慢食光 版权所有</span>
+        </div>
       </div>
     </div>
   </div>
@@ -63,7 +84,7 @@
       el: '#login-app',
       data() {
         return {
-          loginForm:{
+          loginForm: {
             username: 'admin',
             password: '123456'
           },
@@ -73,7 +94,7 @@
       computed: {
         loginRules() {
           const validateUsername = (rule, value, callback) => {
-            if (value.length < 1 ) {
+            if (value.length < 1) {
               callback(new Error('请输入用户名'))
             } else {
               callback()
@@ -101,8 +122,8 @@
               this.loading = true
               let res = await loginApi(this.loginForm)
               if (String(res.code) === '1') {
-                localStorage.setItem('userInfo',JSON.stringify(res.data))
-                window.location.href= '/backend/index.html'
+                localStorage.setItem('userInfo', JSON.stringify(res.data))
+                window.location.href = '/backend/index.html'
               } else {
                 this.$message.error(res.msg)
                 this.loading = false

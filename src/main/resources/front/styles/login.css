@@ -1,96 +1,213 @@
-#login .divHead {
-  opacity: 1;
-  background: #333333;
-  height: 88rem;
-  width: 100%;
-  font-size: 18rem;
-  font-family: PingFangSC, PingFangSC-Regular;
-  font-weight: 500;
+#login {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #f5f0eb 0%, #ede6dd 100%);
+  display: flex;
+  flex-direction: column;
+}
+
+#login .login-header {
   text-align: center;
-  color: #ffffff;
-  line-height: 88rem;
+  padding: 40px 20px 24px;
 }
 
-#login .divContainer {
-  width: 356rem;
-  height: 128rem;
-  opacity: 1;
-  background: #ffffff;
-  border-radius: 6rem;
-  margin: 0 auto;
-  margin-top: 10rem;
-  position: relative;
+#login .login-header .brand-logo {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 16px;
+  background: linear-gradient(135deg, #c8a97e 0%, #b8956a 100%);
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(200, 169, 126, 0.3);
 }
 
-#login .divContainer input {
-  border: 0;
-  height: 63rem;
+#login .login-header .brand-logo svg {
+  width: 30px;
+  height: 30px;
+  stroke: #fff;
 }
 
-#login .divContainer .divSplit {
-  height: 1px;
-  background-color: #efefef;
-  border: 0;
-  margin-left: 10rem;
-  margin-right: 10rem;
+#login .login-header .brand-name {
+  font-size: 26px;
+  font-weight: 600;
+  color: #2d2926;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
 }
 
-#login .divContainer span {
-  position: absolute;
-  right: 20rem;
-  top: 20rem;
-  cursor: pointer;
-  opacity: 1;
-  font-size: 12rem;
-  font-family: PingFangSC, PingFangSC-Regular;
-  font-weight: 400;
-  text-align: left;
-  color: #ffc200;
-  letter-spacing: 0px;
+#login .login-header .brand-subtitle {
+  font-size: 13px;
+  color: #9a8d7f;
 }
 
-#login .divMsg {
-  width: 168px;
-  height: 17px;
-  opacity: 1;
-  font-size: 12px;
-  font-family: PingFangSC, PingFangSC-Regular;
-  font-weight: 400;
-  text-align: center;
-  color: #e94e3c;
-  line-height: 17px;
-  margin-left: 26rem;
-  margin-top: 10rem;
+#login .login-form {
+  flex: 1;
+  padding: 0 20px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 
-#login .btnSubmit {
-  width: 356rem;
-  height: 40rem;
-  margin: 20rem 10rem 0 10rem;
+#login .form-card {
+  background: #fff;
   border-radius: 20px;
-  border: 0;
+  padding: 28px 24px;
+  box-shadow:
+    0 2px 12px rgba(139, 119, 101, 0.06),
+    0 8px 32px rgba(139, 119, 101, 0.08);
+}
 
-  font-size: 15rem;
-  font-family: PingFangSC, PingFangSC-Regular;
+#login .form-group {
+  margin-bottom: 20px;
+}
+
+#login .form-group:last-child {
+  margin-bottom: 28px;
+}
+
+#login .form-label {
+  display: block;
+  font-size: 14px;
+  color: #6b635a;
+  margin-bottom: 8px;
   font-weight: 500;
+}
+
+#login .input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+#login .input-wrapper .van-field__control {
+  flex: 1;
+}
+
+#login .input-wrapper input {
+  width: 100%;
+  height: 52px;
+  border: 1px solid #ebe3da;
+  border-radius: 12px;
+  font-size: 16px;
+  color: #2d2926;
+  padding: 0 16px;
+  padding-right: 100px;
+  background: #faf8f5;
+  transition: all 0.25s ease;
+  -webkit-appearance: none;
+  border-radius: 12px;
+}
+
+#login .input-wrapper input::placeholder {
+  color: #b8aba0;
+}
+
+#login .input-wrapper input:focus {
+  outline: none;
+  border-color: #c8a97e;
+  box-shadow: 0 0 0 3px rgba(200, 169, 126, 0.15);
+  background: #fff;
+}
+
+#login .input-wrapper .get-code-btn {
+  position: absolute;
+  right: 8px;
+  height: 36px;
+  padding: 0 16px;
+  background: linear-gradient(135deg, #c8a97e 0%, #b8956a 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(200, 169, 126, 0.3);
+  transition: all 0.2s;
+}
+
+#login .input-wrapper .get-code-btn:active {
+  transform: scale(0.98);
+}
+
+#login .input-wrapper .get-code-btn.disabled {
+  background: #e8dfd4;
+  color: #b8aba0;
+  box-shadow: none;
+}
+
+#login .error-msg {
+  font-size: 12px;
+  color: #e07a5f;
+  margin-top: 6px;
+  margin-left: 4px;
+  min-height: 16px;
+}
+
+#login .login-btn {
+  width: 100%;
+  height: 52px;
+  border-radius: 12px;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  background: linear-gradient(135deg, #c8a97e 0%, #b8956a 100%) !important;
+  border: none !important;
+  color: #fff !important;
+  box-shadow: 0 4px 16px rgba(200, 169, 126, 0.3);
+  transition: all 0.25s ease;
+  -webkit-appearance: none;
+}
+
+#login .login-btn:active {
+  transform: scale(0.985);
+}
+
+#login .login-btn.van-button--disabled {
+  opacity: 0.6;
+}
+
+#login .login-footer {
   text-align: center;
+  padding-top: 20px;
+  font-size: 12px;
+  color: #b8aba0;
 }
 
-#login .btnNoPhone {
-  color: #666666;
-  background: #d8d8d8;
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-#login .btnNoPhone:active {
-  background: #afafaf;
+#login .form-card {
+  animation: fadeInUp 0.5s ease-out forwards;
 }
 
-#login .btnPhone {
-  background: #ffc200;
-  color: #333333;
+#login .login-header {
+  animation: fadeInUp 0.5s ease-out 0.1s forwards;
+  opacity: 0;
 }
 
-#login .btnPhone:active {
-  background: rgba(255, 142, 0, 1);
-  color: #333333;
+/* Vant 组件样式重置 */
+#login .van-field {
+  padding: 0;
+}
+
+#login .van-field__body {
+  padding: 0;
+}
+
+#login .van-field__control {
+  display: flex;
+  align-items: center;
+}
+
+#login .van-field__control:after {
+  display: none !important;
 }

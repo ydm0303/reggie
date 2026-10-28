@@ -2,100 +2,223 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100%;
-  background-color: #333;
-}
-.login-box {
-  width: 1000px;
-  height: 474.38px;
-  border-radius: 8px;
-  display: flex;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f0eb 0%, #ede6dd 50%, #e8dfd4 100%);
+  padding: 20px;
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
 }
 
-.login-box img {
-  width: 60%;
-  height: auto;
+.login-container {
+  width: 100%;
+  max-width: 420px;
 }
 
-.title {
-  margin: 0px auto 30px auto;
-  text-align: center;
-  color: #707070;
+.login-card {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow:
+    0 4px 20px rgba(139, 119, 101, 0.08),
+    0 20px 60px rgba(139, 119, 101, 0.12);
+  padding: 48px 40px;
+  position: relative;
+  overflow: hidden;
 }
-.login-form {
-  background: #ffffff;
-  width: 40%;
-  border-radius: 0px 8px 8px 0px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.login-form .el-form {
-  width: 214px;
-  height: 307px;
-}
-.login-form .el-form-item {
-  margin-bottom: 30px;
-}
-.login-form .el-form-item.is-error .el-input__inner {
-  border: 0 !important;
-  border-bottom: 1px solid #fd7065 !important;
-  background: #fff !important;
-}
-.login-form .input-icon {
-  height: 32px;
-  width: 18px;
-  margin-left: -2px;
-}
-.login-form .el-input__inner {
-  border: 0;
-  border-bottom: 1px solid #e9e9e8;
-  border-radius: 0;
-  font-size: 14px;
-  font-weight: 400;
-  color: #333333;
-  height: 32px;
-  line-height: 32px;
-}
-.login-form .el-input__prefix {
+
+/* 顶部装饰条 */
+.login-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
   left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #c8a97e 0%, #d4b896 50%, #c8a97e 100%);
 }
-.login-form .el-input--prefix .el-input__inner {
-  padding-left: 26px;
-}
-.login-form .el-input__inner::placeholder {
-  color: #aeb5c4;
-}
-.login-form .el-form-item--medium .el-form-item__content {
-  line-height: 32px;
-}
-.login-form .el-input--medium .el-input__icon {
-  line-height: 32px;
-}
-.login-btn {
-  border-radius: 17px;
-  padding: 11px 20px !important;
-  margin-top: 10px;
-  font-weight: 500;
-  font-size: 14px;
-  border: 0;
-  background-color: #ffc200;
-}
-.login-btn:hover,
-.login-btn:focus {
-  /* background: #FFC200; */
-  /* color: #ffffff; */
-}
-.login-form-title {
-  height: 36px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+
+.brand-header {
+  text-align: center;
   margin-bottom: 40px;
 }
-.login-form-title .title-label {
+
+.brand-logo {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 16px;
+  background: linear-gradient(135deg, #c8a97e 0%, #b8956a 100%);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(200, 169, 126, 0.3);
+}
+
+.brand-logo svg {
+  width: 28px;
+  height: 28px;
+  stroke: #fff;
+}
+
+.brand-name {
+  font-size: 24px;
+  font-weight: 600;
+  color: #2d2926;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.brand-subtitle {
+  font-size: 13px;
+  color: #9a8d7f;
+  font-weight: 400;
+}
+
+.login-form .el-form-item {
+  margin-bottom: 24px;
+}
+
+.login-form .el-input__inner {
+  border: 1px solid #ebe3da;
+  border-radius: 10px;
+  height: 48px;
+  line-height: 48px;
+  font-size: 15px;
+  color: #2d2926;
+  padding-left: 16px;
+  transition: all 0.25s ease;
+  background: #faf8f5;
+}
+
+.login-form .el-input__inner::placeholder {
+  color: #b8aba0;
+}
+
+.login-form .el-input__inner:hover {
+  border-color: #d4c4b0;
+  background: #fff;
+}
+
+.login-form .el-input__inner:focus,
+.login-form .el-input.is-focus .el-input__inner {
+  border-color: #c8a97e;
+  box-shadow: 0 0 0 3px rgba(200, 169, 126, 0.15);
+  background: #fff;
+}
+
+.login-form .el-input__prefix {
+  color: #b8aba0;
+  left: 16px;
+  transition: color 0.25s ease;
+}
+
+.login-form .el-input.is-focus .el-input__prefix,
+.login-form .el-input__inner:focus + .el-input__prefix {
+  color: #c8a97e;
+}
+
+.login-form .el-input--prefix .el-input__inner {
+  padding-left: 48px;
+}
+
+.login-form .el-form-item__error {
+  font-size: 12px;
+  color: #e07a5f;
+  margin-top: 6px;
+  line-height: 1;
+}
+
+.login-btn {
+  width: 100%;
+  height: 48px;
+  border-radius: 10px;
+  font-size: 16px;
   font-weight: 500;
-  font-size: 20px;
-  color: #333333;
-  margin-left: 10px;
+  letter-spacing: 0.5px;
+  background: linear-gradient(135deg, #c8a97e 0%, #b8956a 100%) !important;
+  border: none !important;
+  box-shadow: 0 4px 16px rgba(200, 169, 126, 0.3);
+  transition: all 0.25s ease;
+}
+
+.login-btn:hover:not(.is-disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(200, 169, 126, 0.4);
+}
+
+.login-btn:active:not(.is-disabled) {
+  transform: translateY(0);
+}
+
+.login-btn.is-disabled,
+.login-btn[disabled] {
+  opacity: 0.6;
+}
+
+.login-footer {
+  margin-top: 28px;
+  text-align: center;
+  font-size: 12px;
+  color: #b8aba0;
+}
+
+.login-footer a {
+  color: #c8a97e;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.login-footer a:hover {
+  color: #b8956a;
+  text-decoration: underline;
+}
+
+/* 入场动画 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.login-card {
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+/* 响应式 */
+@media (max-width: 480px) {
+  .login-card {
+    padding: 36px 24px;
+    border-radius: 16px;
+  }
+
+  .brand-name {
+    font-size: 22px;
+  }
+
+  .login-form .el-input__inner {
+    height: 44px;
+    line-height: 44px;
+  }
+
+  .login-btn {
+    height: 44px;
+  }
+}
+
+/* Element UI 覆盖 */
+.el-form-item:last-child {
+  margin-bottom: 0;
+}
+
+.el-input__icon {
+  line-height: 48px !important;
+}
+
+@media (max-width: 480px) {
+  .el-input__icon {
+    line-height: 44px !important;
+  }
 }
