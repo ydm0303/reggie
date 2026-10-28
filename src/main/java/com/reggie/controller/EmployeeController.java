@@ -12,6 +12,7 @@ import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
 
 @RestController
 @Slf4j
@@ -20,7 +21,6 @@ public class EmployeeController {
 
     @Autowired
     private EmployeeService employeeService;
-
 
     /**
      * 员工登录
@@ -88,25 +88,24 @@ public class EmployeeController {
     public R<String> save(HttpServletRequest request, @RequestBody Employee employee) {
         log.info("新增用户，用户信息为:{}", employee.toString());
 
+        // 校验用户名长度
+        if (employee.getUsername() != null) {
+            if (employee.getUsername().length() < 6) {
+                return R.error("用户名长度不能小于6,请重新输入");
+            }
+        }
+
         //设置员工初始密码，并且md5加密
         employee.setPassword(DigestUtils.md5DigestAsHex("123456".getBytes()));
-//        if(employee.getUsername() != null){
-//            if (employee.getUsername().length() < 6){
-//                return R.error("用户名长度不能小于6,请重新输入");
-//            }
-//        }
-//        assert employee.getUsername() != null;
-//        employee.setPassword(DigestUtils.md5DigestAsHex(employee.getUsername().getBytes()));
 
+        employee.setCreateTime(LocalDateTime.now());
+        employee.setUpdateTime(LocalDateTime.now());
 
-//        employee.setCreateTime(LocalDateTime.now());
-//        employee.setUpdateTime(LocalDateTime.now());
-//
-//        //从session中获取当前用户id
-//        Long empId = (Long) request.getSession().getAttribute("employee");
-//
-//        employee.setCreateUser(empId);
-//        employee.setUpdateUser(empId);
+        //从session中获取当前用户id
+        Long empId = (Long) request.getSession().getAttribute("employee");
+
+        employee.setCreateUser(empId);
+        employee.setUpdateUser(empId);
 
         employeeService.save(employee);
 
@@ -142,14 +141,15 @@ public class EmployeeController {
         long id = Thread.currentThread().getId();
         log.info("线程id为：{}",id);
 
-//        Long empId = (Long) request.getSession().getAttribute("employee");
-//        employee.setUpdateTime(LocalDateTime.now());
-//        employee.setUpdateUser(empId);
-//        String name = employee.getName();
+        Long empId = (Long) request.getSession().getAttribute("employee");
+        employee.setUpdateTime(LocalDateTime.now());
+        employee.setUpdateUser(empId);
+
+        String name = employee.getName();
         employeeService.updateById(employee);
-//        if(name.equals("admin")){
-//            return R.error("管理员不能禁用！");
-//        }
+        if(name != null && name.equals("admin")){
+            return R.error("管理员不能禁用！");
+        }
         return R.success("修改用户信息成功！");
     }
 

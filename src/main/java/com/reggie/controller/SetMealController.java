@@ -7,6 +7,7 @@ import com.reggie.common.R;
 import com.reggie.dto.SetmealDto;
 import com.reggie.entity.Category;
 import com.reggie.entity.Setmeal;
+import com.reggie.entity.SetmealDish;
 import com.reggie.service.CategoryService;
 import com.reggie.service.SetMealDishService;
 import com.reggie.service.SetMealService;
@@ -31,7 +32,7 @@ public class SetMealController {
 
     @Autowired
     private SetMealDishService setMealDishService;
-    
+
     @Autowired
     private CategoryService categoryService;
 
@@ -111,28 +112,46 @@ public class SetMealController {
         log.info("status ===========>:{}",status);
         log.info("ids ===========>:{}",ids);
 
-        if (ids.size() > 1) { //批量
-            LambdaQueryWrapper<Setmeal> wrapper2 = new LambdaQueryWrapper<>();
-            wrapper2.in(ids != null ,Setmeal::getId,ids);
-            List<Setmeal> list = setMealService.list(wrapper2);
-            for (Setmeal setmeal : list) {
-                if (setmeal.getStatus() == 0){
-                    return R.error("批量启停时，售卖状态只能为【停售/起售】的菜品,请重新操作！");
-                }
-                setmeal.setStatus(status);
-            }
-            setMealService.updateBatchById(list);
+        if (ids == null || ids.isEmpty()) {
+            return R.error("套餐ID不能为空");
         }
 
-        QueryWrapper<Setmeal> setmealQueryWrapper = new QueryWrapper<>();
-        setmealQueryWrapper.lambda().in(Setmeal::getId,ids);
-        List<Setmeal> list = setMealService.list(setmealQueryWrapper);
-        for (Setmeal setmeal : list) {
-            setmeal.setStatus(status);
-            setMealService.updateById(setmeal);
+        // 校验状态值
+        if (status != 0 && status != 1) {
+            return R.error("状态值无效，只能为0(停售)或1(起售)");
         }
+
+        LambdaQueryWrapper<Setmeal> wrapper = new LambdaQueryWrapper<>();
+        wrapper.in(Setmeal::getId, ids);
+        List<Setmeal> list = setMealService.list(wrapper);
+
+        if (list.isEmpty()) {
+            return R.error("未找到对应套餐");
+        }
+
+        // 批量更新状态
+        for (Setmeal setmeal : list) {
+            if (setmeal.getStatus() != status) {
+                setmeal.setStatus(status);
+                setMealService.updateById(setmeal);
+            }
+        }
+
         return R.success("套餐数据更新成功！");
     }
 
+    /**
+     * 根据套餐id查询包含的菜品列表
+     * @param id 套餐ID
+     * @return 菜品列表
+     */
+    @GetMapping("/dish/{id}")
+    public R<List<SetmealDish>> getDishBySetmealId(@PathVariable Long id) {
+        LambdaQueryWrapper<SetmealDish> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(SetmealDish::getSetmealId, id);
+        queryWrapper.orderByAsc(SetmealDish::getSort);
+        List<SetmealDish> list = setMealDishService.list(queryWrapper);
+        return R.success(list);
+    }
 
 }

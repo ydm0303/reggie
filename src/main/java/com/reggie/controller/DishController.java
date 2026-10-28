@@ -124,60 +124,35 @@ public class DishController {
      * @param ids
      * @return
      */
-    @PostMapping("/{status}/{status}")
+    @PostMapping("/status/{status}")
     public R<String> discontinueDish(@PathVariable Integer status,@RequestParam List<Long> ids){
         log.info("status:{}",status);
         log.info("ids:{}",ids);
-        // update set status =? where ids = ?
-//        Dish dish = dishService.getById(ids);
-//        if(dish != null){
-//            dish.setStatus(status);
-//            dishService.updateById(dish);
-//            return R.success("更新状态成功");
-//        }
-        if(ids.size() > 1){ //表示批量
-            if(status == 1){//启售
-                LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
-                queryWrapper.in(ids != null,Dish::getId,ids);
-                List<Dish> dishList = dishService.list(queryWrapper);
-                for (Dish dish : dishList){
-                    if(dish.getStatus() ==1){
-                        return  R.error("批量选择中存在售卖状态为启售的菜品,请重新操作！");
-                    }
-                }
 
-                List<Dish> collect = dishList.stream().peek((item -> {
-                    item.setStatus(status);
-                    dishService.updateById(item);
-                })).collect(Collectors.toList());
-
+        if (ids == null || ids.isEmpty()) {
+            return R.error("菜品ID不能为空");
         }
-            if (status == 0){
-                LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
-                queryWrapper.in(ids != null,Dish::getId,ids);
-                List<Dish> dishList = dishService.list(queryWrapper);
-                for (Dish dish : dishList){
-                    if(dish.getStatus() ==0){
-                        return  R.error("批量选择中存在售卖状态为停售的菜品,请重新操作！");
-                    }
-                }
 
-                List<Dish> collect = dishList.stream().peek((item -> {
-                    item.setStatus(status);
-                    dishService.updateById(item);
-                })).collect(Collectors.toList());
-
-            }
-
+        // 校验状态值
+        if (status != 0 && status != 1) {
+            return R.error("状态值无效，只能为0(停售)或1(起售)");
         }
+
         LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(ids != null,Dish::getId,ids);
+        queryWrapper.in(Dish::getId, ids);
         List<Dish> dishList = dishService.list(queryWrapper);
 
-        List<Dish> collect = dishList.stream().peek((item -> {
-            item.setStatus(status);
-            dishService.updateById(item);
-        })).collect(Collectors.toList());
+        if (dishList.isEmpty()) {
+            return R.error("未找到对应菜品");
+        }
+
+        // 批量更新状态
+        for (Dish dish : dishList) {
+            if (dish.getStatus() != status) {
+                dish.setStatus(status);
+                dishService.updateById(dish);
+            }
+        }
 
         return R.success("更新状态成功");
     }
@@ -194,8 +169,8 @@ public class DishController {
     @DeleteMapping()
     public R<String> delete(@RequestParam List<Long> ids){
         log.info("id:{}",ids);
-        //物理删除
-        if(ids != null){
+        //逻辑删除
+        if(ids != null && !ids.isEmpty()){
             LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
             queryWrapper.in(Dish::getId,ids);
 
@@ -204,33 +179,12 @@ public class DishController {
                 if(dish.getStatus()==1){
                     return R.error("存在在售状态的菜品,删除失败！");
                 }
-                dishService.removeById(dish.getId());
+                // 逻辑删除：设置 is_deleted = 1
+                dish.setIsDeleted(1);
+                dishService.updateById(dish);
             }
             return R.success("菜品删除成功");
-
-
-
-//
-//            Dish dish = dishService.getById(ids);  //启售状态不可删除！
-//            if(dish.getStatus() == 0){
-//                dishService.removeById(ids);
-//                return R.success("删除菜品成功");
-//            }else {
-//                return R.error("启售状态不可删除,请更改后再操作");
-//            }
         }
-//        //逻辑删除
-//        if(ids != null){
-//            Dish dish = dishService.getById(ids);  //启售状态不可删除！
-//            if(dish.getStatus() ==0){
-////                dishService.removeById(ids);
-//                dish.setIsDeleted(1);
-//                dishService.updateById(dish);
-//                return R.success("删除菜品成功");
-//            }else {
-//                return R.error("启售状态不可删除,请更改后再操作");
-//            }
-//        }
 
         return R.error("菜品ID为空，删除失败");
     }
@@ -245,6 +199,8 @@ public class DishController {
     lambdaQueryWrapper.eq(dish.getCategoryId() != null,Dish::getCategoryId,dish.getCategoryId());
     //添加条件，查询状态为启售的
     lambdaQueryWrapper.eq(Dish::getStatus,1);
+    // 排除已删除的
+    lambdaQueryWrapper.eq(Dish::getIsDeleted, 0);
     lambdaQueryWrapper.orderByDesc(Dish::getSort).orderByDesc(Dish::getUpdateTime);
 
     List<Dish> list = dishService.list(lambdaQueryWrapper);

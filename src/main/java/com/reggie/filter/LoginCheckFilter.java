@@ -38,6 +38,9 @@ public class LoginCheckFilter implements Filter {
         String[] urls = new String[]{
                 "/employee/login",
                 "/employee/logout",
+                "/user/login",
+                "/user/loginout",
+                "/user/sendMsg",
                 "/backend/**",
                 "/front/**",
                 "/common/**"
@@ -53,12 +56,24 @@ public class LoginCheckFilter implements Filter {
         }
 
         //判断登录状态
+        // 1. 员工登录检查
         if (request.getSession().getAttribute("employee") != null) {
             log.info("用户已登录，用户Id为{}", request.getSession().getAttribute("employee"));
 
             //获取用户id，存入线程中，因为一个请求的线程id是相同的
             Long empId = (Long) request.getSession().getAttribute("employee");
             BaseContext.setCurrentId(empId);
+
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        // 2. 移动端用户登录检查
+        if (request.getSession().getAttribute("user") != null) {
+            log.info("移动端用户已登录，用户Id为{}", request.getSession().getAttribute("user"));
+
+            Long userId = (Long) request.getSession().getAttribute("user");
+            BaseContext.setCurrentId(userId);
 
             filterChain.doFilter(request, response);
             return;

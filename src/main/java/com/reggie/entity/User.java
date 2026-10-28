@@ -40,4 +40,7 @@ public class User implements Serializable {
 
     //状态 0:禁用，1:正常
     private Integer status;
+
+    // 验证码（非数据库字段）
+    private String code;
 }
