@@ -1,0 +1,31 @@
+name: Keep Render Alive
+
+on:
+  schedule:
+    # 每 10 分钟执行一次（Render 免费层 15 分钟休眠，留 5 分钟安全边际）
+    - cron: '*/10 * * * *'
+  # 也支持手动触发
+  workflow_dispatch:
+
+jobs:
+  ping:
+    name: Ping Render Health Endpoint
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Ping /common/health
+        run: |
+          URL="https://${{ secrets.RENDER_APP_URL }}/common/health"
+          echo "Pinging: $URL"
+          response=$(curl -fsS --max-time 10 "$URL" 2>&1) || {
+            echo "❌ Request failed"
+            exit 1
+          }
+          echo "✅ Response: $response"
+        env:
+          # 需要在 GitHub 仓库 Settings > Secrets 中配置 RENDER_APP_URL
+          # 例如：your-app.onrender.com（不含 https://）
+          RENDER_APP_URL: ${{ secrets.RENDER_APP_URL }}
+
+      - name: Log timestamp
+        run: echo "Completed at $(date -u)"

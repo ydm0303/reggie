@@ -56,6 +56,12 @@ public class CommonController {
         return R.success(fileName);
     }
 
+    @GetMapping("/health")
+    public R<String> health() {
+        log.info("收到保活请求！");
+        return R.success("OK");
+    }
+
     @GetMapping("/download")
     public void download(String name, HttpServletResponse response) {
 

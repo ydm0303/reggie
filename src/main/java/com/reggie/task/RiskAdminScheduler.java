@@ -1,42 +1,49 @@
 package com.reggie.task;
 
-import com.reggie.controller.CategoryController;
-import com.reggie.controller.DishController;
+import com.reggie.service.DishService;
+import com.reggie.service.CategoryService;
 import lombok.extern.apachecommons.CommonsLog;
 import net.javacrumbs.shedlock.core.SchedulerLock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 
-import java.util.Date;
-
+/**
+ * 定时任务：数据库连接池保活
+ * 注意：此任务无法防止 Render 休眠（Render 仅识别外部入站 HTTP 请求）
+ * Render 保活请使用外部监控服务（如 GitHub Actions、UptimeRobot）定时调用 /common/health
+ */
 @Component
 @CommonsLog
 public class RiskAdminScheduler {
 
     @Autowired
-    private DishController dishController;
+    private DishService dishService;
+
     @Autowired
-    private CategoryController categoryController;
+    private CategoryService categoryService;
 
-    private static final String SIXTY_MIN = "PT30S"; //如果任务执行时间超过了这个时间，ShedLock 将自动释放锁定
-    private static final String THREE_MIN = "PT20S"; //设置为 PT3M 表示任务将至少锁定 3 分钟，即在这个时间范围内，其他节点不会执行相同的任务。\
-    private static Integer count = 1;
+    // lockAtMostFor: 任务最大执行时间，超时自动释放锁
+    private static final String LOCK_AT_MOST_FOR = "PT20S";
+    // lockAtLeastFor: 任务最小持锁时间，防止并发执行
+    private static final String LOCK_AT_LEAST_FOR = "PT10S";
 
-    @Scheduled(cron = "0 0/30 * * * ?")
-    @SchedulerLock(name = "test1",lockAtLeastForString = THREE_MIN,lockAtMostForString = SIXTY_MIN)
-    public void test1() {
-        dishController.page(1,10,"杨东铭");
-        log.info(Thread.currentThread().getName() + "->>>应用数据库保活任务1：" + (count++) + "次");
-
-    }
-
-    @Scheduled(cron = "0/5 * * * * ? ")
-    @SchedulerLock(name = "test2",lockAtLeastForString = THREE_MIN,lockAtMostForString = SIXTY_MIN)
-    public void test2() {
-        log.info(Thread.currentThread().getName() + "->>>应用数据库保活任务2：" + (count++) + "次");
-        dishController.page(1,10,"杨东铭");
-        categoryController.page(1,10);
+    /**
+     * 每 10 分钟执行一次：执行简单查询保持数据库连接池活跃
+     * 防止长时间无访问导致数据库连接被 MySQL 服务端主动断开 (wait_timeout 默认 8 小时)
+     */
+    @Scheduled(cron = "0 0/10 * * * ?")
+    @SchedulerLock(name = "db-keepalive", lockAtLeastForString = LOCK_AT_LEAST_FOR, lockAtMostForString = LOCK_AT_MOST_FOR)
+    public void dbKeepAlive() {
+        try {
+            // 执行轻量级查询，不返回大量数据
+            List<?> dishes = dishService.list();
+            List<?> categories = categoryService.list();
+            log.info("数据库连接池保活任务执行成功");
+        } catch (Exception e) {
+            log.error("数据库连接池保活任务执行失败", e);
+        }
     }
 }
