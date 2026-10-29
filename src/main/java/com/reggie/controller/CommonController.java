@@ -58,7 +58,7 @@ public class CommonController {
 
     @GetMapping("/health")
     public R<String> health() {
-        log.info("收到保活请求！");
+        log.info("~~~~~~收到来来自【cronjob网站的】应用保活请求~~~~~~");
         return R.success("OK");
     }
 

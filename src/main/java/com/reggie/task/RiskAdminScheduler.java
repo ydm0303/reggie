@@ -34,14 +34,14 @@ public class RiskAdminScheduler {
      * 每 10 分钟执行一次：执行简单查询保持数据库连接池活跃
      * 防止长时间无访问导致数据库连接被 MySQL 服务端主动断开 (wait_timeout 默认 8 小时)
      */
-    @Scheduled(cron = "0 0/10 * * * ?")
+    @Scheduled(cron = "0 0 */4 * * ?")
     @SchedulerLock(name = "db-keepalive", lockAtLeastForString = LOCK_AT_LEAST_FOR, lockAtMostForString = LOCK_AT_MOST_FOR)
     public void dbKeepAlive() {
         try {
             // 执行轻量级查询，不返回大量数据
             List<?> dishes = dishService.list();
             List<?> categories = categoryService.list();
-            log.info("数据库连接池保活任务执行成功");
+            log.info("数据库连接池保活任务执行成功~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
         } catch (Exception e) {
             log.error("数据库连接池保活任务执行失败", e);
         }
